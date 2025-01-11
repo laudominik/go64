@@ -19,7 +19,13 @@ func inRange(arg, left, right uint64) bool {
 func (m *Machine) Tick() {
 	pc := m.cpu.pc
 	instrb := m.readDWord(pc)
-	decode(instrb)
+	instr := decode(instrb)
+	m.execute(instr)
+}
+
+func (m *Machine) execute(instr Instruction) {
+	m.cpu.pc += 4
+	instr.callback(m, instr)
 }
 
 func (m *Machine) readDWord(virtualAddress uint64) uint32 {

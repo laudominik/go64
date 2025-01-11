@@ -25,7 +25,7 @@ func main() {
 	}
 	machine.Reset()
 
-	// for {
-	machine.Tick()
-	// }
+	for {
+		machine.Tick()
+	}
 }
