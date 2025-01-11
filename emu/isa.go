@@ -52,16 +52,25 @@ func decode(instrb uint32) Instruction {
 		tgt:      bits(instrb, 25, 0),
 	}
 
-	switch instr.opcode {
-	case 0x0:
+	if instr.opcode == 0 {
 		instr.ty = INSTR_TYPE_R
 		callback, valid := ISA_R_TABLE[instr.funct]
 		mnemonic, validMnemonic := ISA_R_MNEMONIC[instr.funct]
 		if !valid || !validMnemonic {
-			panic("Invalid opcode")
+			panic(fmt.Sprintf("Invalid funct 0b%b", instr.funct))
 		}
 		instr.callback = callback
 		instr.mnemonic = mnemonic
+	} else {
+		callback, valid := ISA_IJ_TABLE[instr.opcode]
+		mnemonic, validMnemonic := ISA_IJ_MNEMONIC[instr.opcode]
+		ty, validTy := ISA_IJ_TYPE[instr.opcode]
+		if !valid || !validMnemonic || !validTy {
+			panic(fmt.Sprintf("Invalid opcode 0b%b", instr.opcode))
+		}
+		instr.callback = callback
+		instr.mnemonic = mnemonic
+		instr.ty = ty
 	}
 	if config.CONFIG.Disassemble {
 		fmt.Println(instr.disassemble())
@@ -72,9 +81,9 @@ func decode(instrb uint32) Instruction {
 func (instr Instruction) disassemble() string {
 	switch instr.ty {
 	case INSTR_TYPE_I:
-		return fmt.Sprintf("%s %d %d %d", instr.mnemonic, instr.rs, instr.rd, instr.imm)
+		return fmt.Sprintf("%s r%d r%d 0x%x", instr.mnemonic, instr.rs, instr.rd, instr.imm)
 	case INSTR_TYPE_J:
-		return fmt.Sprintf("%s %d", instr.mnemonic, instr.tgt)
+		return fmt.Sprintf("%s 0x%x", instr.mnemonic, instr.tgt)
 	case INSTR_TYPE_R:
 		return fmt.Sprintf("%s r%d r%d r%d (shift=%d)", instr.mnemonic, instr.rs, instr.rt, instr.rd, instr.sa)
 	}
