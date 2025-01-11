@@ -12,15 +12,21 @@ var ISA_IJ_MNEMONIC = map[uint32]string{
 
 var ISA_IJ_TYPE = map[uint32]int{
 	0b100011: INSTR_TYPE_I,
-	0b101011: INSTR_TYPE_R,
+	0b101011: INSTR_TYPE_I,
 }
 
 func i_lw(m *Machine, instr Instruction) {
-	v := m.readDWord(m.cpu.r[instr.rs] + uint64(instr.imm))
+	addr := m.cpu.r[instr.rs] + uint64(sext32(instr.imm, 16))
+	v := m.readDWord(addr)
+	if m.cpu.exception { // exception when reading
+		return
+	}
 	m.cpu.r[instr.rt] = uint64(v)
 }
 
 func i_sw(m *Machine, instr Instruction) {
 	v := m.cpu.r[instr.rt]
-	m.writeDWord(m.cpu.r[instr.rs]+uint64(instr.imm), uint32(v))
+	addr := m.cpu.r[instr.rs] + uint64(sext32(instr.imm, 16))
+	m.writeDWord(addr, uint32(v))
+	// exception when writing can happen so this instruction won't have any effect
 }

@@ -22,3 +22,11 @@ func (cpu *Cpu) reset() {
 	cpu.cop0[16] = 0x0006E463
 	cpu.pc = 0xA4000040
 }
+
+func sext32(num uint32, ogBits int) uint32 {
+	signBit := uint32(1 << (ogBits - 1))
+	if num&signBit != 0 {
+		return uint32(num | ^((1 << ogBits) - 1))
+	}
+	return uint32(num & ((1 << ogBits) - 1))
+}
