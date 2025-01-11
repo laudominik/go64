@@ -21,4 +21,8 @@ func main() {
 		os.Exit(1)
 	}
 	machine.Reset()
+
+	// for {
+	machine.Tick()
+	// }
 }

@@ -16,6 +16,21 @@ func inRange(arg, left, right uint64) bool {
 	return arg >= left && arg <= right
 }
 
+func (m *Machine) Tick() {
+	pc := m.cpu.pc
+	instrb := m.readDWord(pc)
+	decode(instrb)
+}
+
+func (m *Machine) readDWord(virtualAddress uint64) uint32 {
+	/* big endian */
+	hh := uint32(m.read(virtualAddress))
+	hl := uint32(m.read(virtualAddress + 1))
+	lh := uint32(m.read(virtualAddress + 2))
+	ll := uint32(m.read(virtualAddress + 3))
+	return ll + (lh << 8) + (hl << 16) + (hh << 24)
+}
+
 func (m *Machine) write(virtualAddress uint64, value byte) {
 	physicalAddress := translate(virtualAddress)
 	if inRange(physicalAddress, 0x10000000, 0x1FBFFFFF) {
