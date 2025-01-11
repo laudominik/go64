@@ -32,6 +32,7 @@ func (m *Machine) readDWord(virtualAddress uint64) uint32 {
 	if virtualAddress&0b11 != 0 {
 		panic(fmt.Sprintf("Unaligned read at %x: %x", m.cpu.pc, virtualAddress))
 	}
+	virtualAddress &= 0xFFFFFFFF // todo: remove after implementing 64-bit mode
 	/* big endian */
 	hh := uint32(m.read(virtualAddress))
 	hl := uint32(m.read(virtualAddress + 1))
