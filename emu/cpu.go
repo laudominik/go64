@@ -20,5 +20,5 @@ func (cpu *Cpu) reset() {
 	cpu.cop0[12] = 0x34000000
 	cpu.cop0[15] = 0x00000B00
 	cpu.cop0[16] = 0x0006E463
-	cpu.pc = 0xBFC00000
+	cpu.pc = 0xA4000040
 }
