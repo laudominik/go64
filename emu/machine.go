@@ -9,7 +9,9 @@ import (
 type Machine struct {
 	cpu          Cpu
 	cardridgeROM []byte // Cartridge Domain 1 Address 2
-	rspData      []byte // SP DMEM
+
+	rspData  []byte // SP DMEM
+	rspInstr []byte // SP INSTR
 }
 
 func inRange(arg, left, right uint64) bool {
@@ -19,6 +21,11 @@ func inRange(arg, left, right uint64) bool {
 func (m *Machine) Tick() {
 	pc := m.cpu.pc
 	instrb := m.readDWord(pc)
+	if m.cpu.exception {
+		// exception can happen during instruction fetch
+		m.cpu.handleException()
+		return
+	}
 	instr := decode(instrb)
 	m.execute(instr)
 }
@@ -26,6 +33,10 @@ func (m *Machine) Tick() {
 func (m *Machine) execute(instr Instruction) {
 	m.cpu.pc += 4
 	instr.callback(m, instr)
+	if m.cpu.exception {
+		m.cpu.handleException()
+	}
+	m.cpu.exception = false
 }
 
 func (m *Machine) readDWord(virtualAddress uint64) uint32 {
@@ -56,27 +67,40 @@ func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
 }
 
 func (m *Machine) write(virtualAddress uint64, value byte) {
-	physicalAddress := translate(virtualAddress)
+	physicalAddress := m.cpu.translate(virtualAddress, false)
+	if m.cpu.exception {
+		return
+	}
 	if inRange(physicalAddress, 0x10000000, 0x1FBFFFFF) {
 		panic("Trying to write to cardridge ROM")
 	} else if inRange(physicalAddress, 0x04000000, 0x04000FFF) {
 		m.rspData[physicalAddress-0x04000000] = value
+	} else if inRange(physicalAddress, 0x04001000, 0x04001FFF) {
+		m.rspInstr[physicalAddress-0x04001000] = value
+	} else {
+		panic("Writing to unmapped memory")
 	}
 }
 
 func (m *Machine) read(virtualAddress uint64) byte {
-	physicalAddress := translate(virtualAddress)
+	physicalAddress := m.cpu.translate(virtualAddress, true)
+	if m.cpu.exception {
+		return 0
+	}
 	if inRange(physicalAddress, 0x10000000, 0x1FBFFFFF) {
 		return m.cardridgeROM[physicalAddress-0x10000000]
 	} else if inRange(physicalAddress, 0x04000000, 0x04000FFF) {
 		return m.rspData[physicalAddress-0x04000000]
+	} else if inRange(physicalAddress, 0x04001000, 0x04001FFF) {
+		return m.rspInstr[physicalAddress-0x04001000]
 	}
-	return 0
+	panic("Reading unmapped memory")
 }
 
 func (m *Machine) Reset() {
 	m.cpu.reset()
 	m.rspData = make([]byte, 0x1000)
+	m.rspInstr = make([]byte, 0x1000)
 	/*
 		The first 0x1000 bytes from the cartridge are copied to SP DMEM.
 		This is implemented as a copy of 0x1000 bytes from 0xB0000000 to 0xA4000000.
