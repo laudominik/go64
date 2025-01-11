@@ -29,12 +29,29 @@ func (m *Machine) execute(instr Instruction) {
 }
 
 func (m *Machine) readDWord(virtualAddress uint64) uint32 {
+	if virtualAddress&0b11 != 0 {
+		panic(fmt.Sprintf("Unaligned read at %x: %x", m.cpu.pc, virtualAddress))
+	}
 	/* big endian */
 	hh := uint32(m.read(virtualAddress))
 	hl := uint32(m.read(virtualAddress + 1))
 	lh := uint32(m.read(virtualAddress + 2))
 	ll := uint32(m.read(virtualAddress + 3))
 	return ll + (lh << 8) + (hl << 16) + (hh << 24)
+}
+
+func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
+	if virtualAddress&0b11 != 0 {
+		panic(fmt.Sprintf("Unaligned write at %x: %x", m.cpu.pc, virtualAddress))
+	}
+	hh := byte((value >> 24) & 0xFF)
+	hl := byte((value >> 16) & 0xFF)
+	lh := byte((value >> 8) & 0xFF)
+	ll := byte(value & 0xFF)
+	m.write(virtualAddress, hh)
+	m.write(virtualAddress+1, hl)
+	m.write(virtualAddress+2, lh)
+	m.write(virtualAddress+3, ll)
 }
 
 func (m *Machine) write(virtualAddress uint64, value byte) {
