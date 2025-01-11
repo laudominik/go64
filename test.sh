@@ -1,0 +1,1 @@
+./build/go64 roms/ocarina.z64
