@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
+	"go64/config"
 	"go64/emu"
 	"os"
 )
 
 func main() {
 	var machine emu.Machine
+
+	config.ParseConfig()
 
 	if len(os.Args) != 2 {
 		fmt.Println("Usage: go64 <path-to-rom>")

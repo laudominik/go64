@@ -1,6 +1,9 @@
 package emu
 
-import "fmt"
+import (
+	"fmt"
+	"go64/config"
+)
 
 type Instruction struct {
 	/* decoded */
@@ -60,6 +63,9 @@ func decode(instrb uint32) Instruction {
 		instr.callback = callback
 		instr.mnemonic = mnemonic
 	}
+	if config.CONFIG.Disassemble {
+		fmt.Println(instr.disassemble())
+	}
 	return instr
 }
 
@@ -70,7 +76,7 @@ func (instr Instruction) disassemble() string {
 	case INSTR_TYPE_J:
 		return fmt.Sprintf("%s %d", instr.mnemonic, instr.tgt)
 	case INSTR_TYPE_R:
-		return fmt.Sprintf("%s %d %d %d %d", instr.mnemonic)
+		return fmt.Sprintf("%s r%d r%d r%d (shift=%d)", instr.mnemonic, instr.rs, instr.rt, instr.rd, instr.sa)
 	}
 	panic("Trying to disassemble invalid/undecoded function")
 }
