@@ -30,6 +30,7 @@ type InstructionCallback func(m *Machine, instr Instruction)
 const INSTR_TYPE_R = 0
 const INSTR_TYPE_I = 1
 const INSTR_TYPE_J = 2
+const INSTR_TYPE_REGIMM = 3
 
 func bits(num, end, start uint32) uint32 {
 	mask := uint32((1 << (end - start + 1)) - 1)
@@ -61,6 +62,8 @@ func decode(instrb uint32) Instruction {
 		}
 		instr.callback = callback
 		instr.mnemonic = mnemonic
+	} else if instr.opcode == 1 {
+		// TODO: add REGIMM instructions
 	} else {
 		callback, valid := ISA_IJ_TABLE[instr.opcode]
 		mnemonic, validMnemonic := ISA_IJ_MNEMONIC[instr.opcode]
