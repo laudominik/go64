@@ -6,7 +6,7 @@ type Instruction struct {
 	/* decoded */
 	mnemonic string
 	ty       int
-	emulate  func(m *Machine, instr Instruction)
+	callback InstructionCallback
 	/* general */
 	instrb uint32
 	opcode uint32
@@ -22,6 +22,8 @@ type Instruction struct {
 	tgt uint32
 }
 
+type InstructionCallback func(m *Machine, instr Instruction)
+
 const INSTR_TYPE_R = 0
 const INSTR_TYPE_I = 1
 const INSTR_TYPE_J = 2
@@ -35,7 +37,7 @@ func decode(instrb uint32) Instruction {
 	instr := Instruction{
 		mnemonic: "",
 		ty:       -1,
-		emulate:  nil,
+		callback: nil,
 		instrb:   instrb,
 		opcode:   bits(instrb, 31, 26),
 		rs:       bits(instrb, 25, 21),
@@ -45,6 +47,18 @@ func decode(instrb uint32) Instruction {
 		sa:       bits(instrb, 10, 6),
 		funct:    bits(instrb, 5, 0),
 		tgt:      bits(instrb, 25, 0),
+	}
+
+	switch instr.opcode {
+	case 0x0:
+		instr.ty = INSTR_TYPE_R
+		callback, valid := ISA_R_TABLE[instr.funct]
+		mnemonic, validMnemonic := ISA_R_MNEMONIC[instr.funct]
+		if !valid || !validMnemonic {
+			panic("Invalid opcode")
+		}
+		instr.callback = callback
+		instr.mnemonic = mnemonic
 	}
 	return instr
 }
@@ -59,4 +73,8 @@ func (instr Instruction) disassemble() string {
 		return fmt.Sprintf("%s %d %d %d %d", instr.mnemonic)
 	}
 	panic("Trying to disassemble invalid/undecoded function")
+}
+
+func stub(m *Machine, instr Instruction) {
+	panic("Calling a stub")
 }
