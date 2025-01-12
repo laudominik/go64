@@ -3,6 +3,8 @@ package emu
 type Cpu struct {
 	pc            uint64
 	r             Registers
+	hi            uint64
+	lo            uint64
 	cop0          Registers
 	tlb           [32][2]uint64
 	exception     bool
