@@ -1,7 +1,7 @@
 package emu
 
 var ISA_R_TABLE = map[uint32]InstructionCallback{
-	0b000000: stub,
+	0b000000: r_sll,
 	0b000010: stub,
 	0b000011: stub,
 	0b000100: stub,
@@ -66,4 +66,8 @@ func r_xor(m *Machine, instr Instruction) {
 
 func r_mfhi(m *Machine, instr Instruction) {
 	m.cpu.r[instr.rd] = m.cpu.hi
+}
+
+func r_sll(m *Machine, instr Instruction) {
+	m.cpu.r[instr.rd] = m.cpu.r[instr.rt] << uint64(instr.sa)
 }
