@@ -104,5 +104,5 @@ func (instr Instruction) disassemble() string {
 }
 
 func stub(m *Machine, instr Instruction) {
-	panic("Calling a stub")
+	panic(fmt.Sprintf("Calling a stub %s", instr.mnemonic))
 }
