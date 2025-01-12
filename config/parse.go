@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	Disassemble bool `yaml:"disassemble"`
+	Pc          bool `yaml:"log_pc"`
 }
 
 var CONFIG Config

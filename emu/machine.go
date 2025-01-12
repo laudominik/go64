@@ -3,6 +3,7 @@ package emu
 import (
 	"errors"
 	"fmt"
+	"go64/config"
 	"os"
 )
 
@@ -20,6 +21,10 @@ func inRange(arg, left, right uint64) bool {
 
 func (m *Machine) Tick() {
 	pc := m.cpu.pc
+	if config.CONFIG.Pc {
+		fmt.Printf("[%x] ", pc)
+	}
+
 	instrb := m.readDWord(pc)
 	if m.cpu.exception {
 		// exception can happen during instruction fetch

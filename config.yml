@@ -1,1 +1,2 @@
 disassemble: true
+log_pc: true
