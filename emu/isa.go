@@ -38,13 +38,6 @@ func bits(num, end, start uint32) uint32 {
 	return (num >> start) & mask
 }
 
-var FUNCT_TABLE = map[int]map[uint32]InstructionCallback{
-	0b000000: ISA_R_TABLE,
-}
-var MNEMONIC_TABLE = map[int]map[uint32]string{
-	0b000000: ISA_R_MNEMONIC,
-}
-
 func decode(instrb uint32) Instruction {
 	instr := Instruction{
 		mnemonic: "",
@@ -65,23 +58,24 @@ func decode(instrb uint32) Instruction {
 	var mnemonic string
 	var valid bool
 	var validMnemonic bool
-	var ty int
-	var validTy bool
+	ty := int(instr.opcode)
+	validTy := true
 
-	functTable, isExtension := FUNCT_TABLE[int(instr.opcode)]
-	mnemonicTable, _ := MNEMONIC_TABLE[int(instr.opcode)]
-
-	if isExtension {
-		callback, valid = functTable[instr.funct]
-		mnemonic, validMnemonic = mnemonicTable[instr.funct]
-		ty = int(instr.opcode)
-		validTy = true
-	} else if instr.opcode == INSTR_TYPE_REGIMM {
+	switch instr.opcode {
+	case INSTR_TYPE_R:
+		callback, valid = ISA_R_TABLE[instr.funct]
+		mnemonic, validMnemonic = ISA_R_MNEMONIC[instr.funct]
+	case INSTR_TYPE_REGIMM:
 		callback, valid = ISA_REGIMM_TABLE[instr.rt]
 		mnemonic, validMnemonic = ISA_REGIMM_MNEMONIC[instr.rt]
-		ty = int(instr.opcode)
-		validTy = true
-	} else {
+	case INSTR_TYPE_COP0:
+		if instr.rs&0b10000 == 0 {
+			callback, valid = ISA_COP0_G1_TABLE[instr.rs]
+			mnemonic, validMnemonic = ISA_COP0_G1_MNEMONIC[instr.rs]
+		} else {
+
+		}
+	default:
 		callback, valid = ISA_IJ_TABLE[instr.opcode]
 		mnemonic, validMnemonic = ISA_IJ_MNEMONIC[instr.opcode]
 		ty, validTy = ISA_IJ_TYPE[instr.opcode]
@@ -111,7 +105,8 @@ func (instr Instruction) disassemble() string {
 		return fmt.Sprintf("%s r%d r%d r%d (shift=%d)", instr.mnemonic, instr.rs, instr.rt, instr.rd, instr.sa)
 	case INSTR_TYPE_REGIMM:
 		return fmt.Sprintf("%s r%d 0x%x", instr.mnemonic, instr.rs, instr.imm)
-
+	case INSTR_TYPE_COP0:
+		return fmt.Sprintf("%s r%d r%d %d", instr.mnemonic, instr.rt, instr.rd, instr.sa)
 	}
 	panic("Trying to disassemble invalid/undecoded function")
 }
