@@ -22,6 +22,7 @@ var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b100011: i_lw,
 	0b100100: stub,
 	0b100101: stub,
+	0b100110: i_lwr,
 	0b101000: stub,
 	0b101001: stub,
 	0b101011: i_sw,
@@ -49,6 +50,7 @@ var ISA_IJ_MNEMONIC = map[uint32]string{
 	0b100011: "LW",
 	0b100100: "LBU",
 	0b100101: "LHU",
+	0b100110: "LWR",
 	0b101000: "SB",
 	0b101001: "SH",
 	0b101011: "SW",
@@ -76,6 +78,7 @@ var ISA_IJ_TYPE = map[uint32]int{
 	0b100011: INSTR_TYPE_I,
 	0b100100: INSTR_TYPE_I,
 	0b100101: INSTR_TYPE_I,
+	0b100110: INSTR_TYPE_I,
 	0b101000: INSTR_TYPE_I,
 	0b101001: INSTR_TYPE_I,
 	0b101011: INSTR_TYPE_I,
@@ -97,7 +100,8 @@ func i_andi(m *Machine, instr Instruction) {
 }
 
 func i_lw(m *Machine, instr Instruction) {
-	addr := m.cpu.r[instr.rs] + uint64(sext32(instr.imm, 16))
+	se := sext32(instr.imm, 16)
+	addr := m.cpu.r[instr.rs] + uint64(se)
 	v := m.readDWord(addr)
 	if m.cpu.exception { // exception when reading
 		return
@@ -110,4 +114,21 @@ func i_sw(m *Machine, instr Instruction) {
 	addr := m.cpu.r[instr.rs] + uint64(sext32(instr.imm, 16))
 	m.writeDWord(addr, uint32(v))
 	// exception when writing can happen so this instruction won't have any effect
+}
+
+func i_lwr(m *Machine, instr Instruction) {
+	addr := m.cpu.r[instr.rs] + uint64(sext32(instr.imm, 16))
+
+	offset := addr % 4 // byte number in word
+	aligned := addr - (addr % 4)
+
+	val := m.readDWord(aligned)
+	if m.cpu.exception { // exception when reading
+		return
+	}
+
+	shift := offset * 8
+	mask := (1 << (32 - shift)) - 1
+	extracted := (val & uint32(mask)) << shift
+	m.cpu.r[instr.rt] = (m.cpu.r[instr.rt] & ^uint64(mask<<shift)) | uint64(extracted)
 }
