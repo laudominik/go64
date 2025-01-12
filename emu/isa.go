@@ -54,7 +54,6 @@ func decode(instrb uint32) Instruction {
 	}
 
 	if instr.opcode == 0 {
-		instr.ty = INSTR_TYPE_R
 		callback, valid := ISA_R_TABLE[instr.funct]
 		mnemonic, validMnemonic := ISA_R_MNEMONIC[instr.funct]
 		if !valid || !validMnemonic {
@@ -62,8 +61,16 @@ func decode(instrb uint32) Instruction {
 		}
 		instr.callback = callback
 		instr.mnemonic = mnemonic
+		instr.ty = INSTR_TYPE_R
 	} else if instr.opcode == 1 {
-		// TODO: add REGIMM instructions
+		callback, valid := ISA_REGIMM_TABLE[instr.rt]
+		mnemonic, validMnemonic := ISA_REGIMM_MNEMONIC[instr.rt]
+		if !valid || !validMnemonic {
+			panic(fmt.Sprintf("Invalid regimm ix 0b%b", instr.rt))
+		}
+		instr.callback = callback
+		instr.mnemonic = mnemonic
+		instr.ty = INSTR_TYPE_REGIMM
 	} else {
 		callback, valid := ISA_IJ_TABLE[instr.opcode]
 		mnemonic, validMnemonic := ISA_IJ_MNEMONIC[instr.opcode]
@@ -89,6 +96,9 @@ func (instr Instruction) disassemble() string {
 		return fmt.Sprintf("%s 0x%x", instr.mnemonic, instr.tgt)
 	case INSTR_TYPE_R:
 		return fmt.Sprintf("%s r%d r%d r%d (shift=%d)", instr.mnemonic, instr.rs, instr.rt, instr.rd, instr.sa)
+	case INSTR_TYPE_REGIMM:
+		return fmt.Sprintf("%s r%d 0x%x", instr.mnemonic, instr.rs, instr.imm)
+
 	}
 	panic("Trying to disassemble invalid/undecoded function")
 }
