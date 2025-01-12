@@ -6,3 +6,8 @@ reference:
 * https://en64.shoutwiki.com/wiki/N64_TLB
 * http://n64dev.org/p/U10504EJ7V0UMJ1.pdf
 * https://hack64.net/
+* https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00086-2B-MIPS32BIS-AFP-05.04.pdf
+
+disassemblies:
+* https://github.com/Roman971/oot-disassembly/tree/master
+* https://github.com/bryanperris/cic6105/tree/main
