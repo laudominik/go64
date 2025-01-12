@@ -31,7 +31,7 @@ const INSTR_TYPE_R = 0b000000
 const INSTR_TYPE_I = -1
 const INSTR_TYPE_J = -2
 const INSTR_TYPE_REGIMM = 0b000001
-const INSTR_TYPE_SPECIAL3 = 0b011111
+const INSTR_TYPE_COP0 = 0b010000
 
 func bits(num, end, start uint32) uint32 {
 	mask := uint32((1 << (end - start + 1)) - 1)
@@ -40,11 +40,9 @@ func bits(num, end, start uint32) uint32 {
 
 var FUNCT_TABLE = map[int]map[uint32]InstructionCallback{
 	0b000000: ISA_R_TABLE,
-	0b011111: ISA_SPECIAL3_TABLE,
 }
 var MNEMONIC_TABLE = map[int]map[uint32]string{
 	0b000000: ISA_R_MNEMONIC,
-	0b011111: ISA_SPECIAL3_MNEMONIC,
 }
 
 func decode(instrb uint32) Instruction {
@@ -90,7 +88,7 @@ func decode(instrb uint32) Instruction {
 	}
 
 	if !valid || !validMnemonic || !validTy {
-		panic(fmt.Sprintf("Invalid instruction, Type: %d Opcode: 0b%b Funct: 0b%b", ty, instr.opcode, instr.funct))
+		panic(fmt.Sprintf("Invalid instruction, Opcode: 0b%b Funct: 0b%b", instr.opcode, instr.funct))
 	}
 
 	instr.callback = callback
@@ -106,10 +104,10 @@ func decode(instrb uint32) Instruction {
 func (instr Instruction) disassemble() string {
 	switch instr.ty {
 	case INSTR_TYPE_I:
-		return fmt.Sprintf("%s r%d r%d 0x%x", instr.mnemonic, instr.rs, instr.rd, instr.imm)
+		return fmt.Sprintf("%s r%d r%d 0x%x", instr.mnemonic, instr.rs, instr.rt, instr.imm)
 	case INSTR_TYPE_J:
 		return fmt.Sprintf("%s 0x%x", instr.mnemonic, instr.tgt)
-	case INSTR_TYPE_R, INSTR_TYPE_SPECIAL3:
+	case INSTR_TYPE_R:
 		return fmt.Sprintf("%s r%d r%d r%d (shift=%d)", instr.mnemonic, instr.rs, instr.rt, instr.rd, instr.sa)
 	case INSTR_TYPE_REGIMM:
 		return fmt.Sprintf("%s r%d 0x%x", instr.mnemonic, instr.rs, instr.imm)
