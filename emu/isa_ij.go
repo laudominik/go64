@@ -1,29 +1,83 @@
 package emu
 
 var ISA_IJ_TABLE = map[uint32]InstructionCallback{
+	0b000010: stub,
+	0b000011: stub,
+	0b000100: stub,
 	0b000101: i_bne,
+	0b000110: stub,
+	0b000111: stub,
 	0b001000: i_addi,
+	0b001001: stub,
+	0b001010: stub,
+	0b001011: stub,
 	0b001100: i_andi,
-	0b010000: i_mfhi,
+	0b001101: stub,
+	0b001110: stub,
+	0b011000: stub,
+	0b011001: stub,
+	0b011010: stub,
+	0b100000: stub,
+	0b100001: stub,
 	0b100011: i_lw,
+	0b100100: stub,
+	0b100101: stub,
+	0b101000: stub,
+	0b101001: stub,
 	0b101011: i_sw,
 }
 
 var ISA_IJ_MNEMONIC = map[uint32]string{
+	0b000010: "J",
+	0b000011: "JAL",
+	0b000100: "BEQ",
 	0b000101: "BNE",
+	0b000110: "BLEZ",
+	0b000111: "BGTZ",
 	0b001000: "ADDI",
+	0b001001: "ADDIU",
+	0b001010: "SLTI",
+	0b001011: "SLTIU",
 	0b001100: "ANDI",
-	0b010000: "MFHI",
+	0b001101: "ORI",
+	0b001110: "XORI",
+	0b011000: "LLO",
+	0b011001: "LHI",
+	0b011010: "TRAP",
+	0b100000: "LB",
+	0b100001: "LH",
 	0b100011: "LW",
+	0b100100: "LBU",
+	0b100101: "LHU",
+	0b101000: "SB",
+	0b101001: "SH",
 	0b101011: "SW",
 }
 
 var ISA_IJ_TYPE = map[uint32]int{
+	0b000010: INSTR_TYPE_J,
+	0b000011: INSTR_TYPE_J,
+	0b000100: INSTR_TYPE_I,
 	0b000101: INSTR_TYPE_I,
+	0b000110: INSTR_TYPE_I,
+	0b000111: INSTR_TYPE_I,
 	0b001000: INSTR_TYPE_I,
+	0b001001: INSTR_TYPE_I,
+	0b001010: INSTR_TYPE_I,
+	0b001011: INSTR_TYPE_I,
 	0b001100: INSTR_TYPE_I,
-	0b010000: INSTR_TYPE_I,
+	0b001101: INSTR_TYPE_I,
+	0b001110: INSTR_TYPE_I,
+	0b011000: INSTR_TYPE_I,
+	0b011001: INSTR_TYPE_I,
+	0b011010: INSTR_TYPE_J,
+	0b100000: INSTR_TYPE_I,
+	0b100001: INSTR_TYPE_I,
 	0b100011: INSTR_TYPE_I,
+	0b100100: INSTR_TYPE_I,
+	0b100101: INSTR_TYPE_I,
+	0b101000: INSTR_TYPE_I,
+	0b101001: INSTR_TYPE_I,
 	0b101011: INSTR_TYPE_I,
 }
 
@@ -56,8 +110,4 @@ func i_sw(m *Machine, instr Instruction) {
 	addr := m.cpu.r[instr.rs] + uint64(sext32(instr.imm, 16))
 	m.writeDWord(addr, uint32(v))
 	// exception when writing can happen so this instruction won't have any effect
-}
-
-func i_mfhi(m *Machine, instr Instruction) {
-	m.cpu.r[instr.rd] = m.cpu.hi
 }
