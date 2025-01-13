@@ -11,11 +11,14 @@ import (
 type Machine struct {
 	cpu Cpu
 
-	/* memory map */
-	cardridgeROM Memory         // Cartridge Domain 1 Address 2
-	rspData      Memory         // SP DMEM
-	rspInstr     Memory         // SP INSTR
-	mi           peripherals.Mi // MIPS Interface (MI)
+	memoryMap []MemoryRange
+}
+
+type MemoryRange struct {
+	start uint64
+	end   uint64
+	name  string
+	p     peripherals.Peripheral
 }
 
 func inRange(arg, left, right uint64) bool {
@@ -57,17 +60,13 @@ func (m *Machine) readDWord(virtualAddress uint64) uint32 {
 	if m.cpu.exception {
 		return 0
 	}
-	if inRange(physicalAddress, 0x10000000, 0x1FBFFFFF) {
-		return m.cardridgeROM.Read(physicalAddress - 0x10000000)
-	} else if inRange(physicalAddress, 0x04000000, 0x04000FFF) {
-		return m.rspData.Read(physicalAddress - 0x04000000)
-	} else if inRange(physicalAddress, 0x04001000, 0x04001FFF) {
-		return m.rspInstr.Read(physicalAddress - 0x04001000)
-	} else if inRange(physicalAddress, 0x04300000, 0x043FFFFF) {
-		return m.mi.Read(physicalAddress)
-	} else if inRange(physicalAddress, 0x04700000, 0x047FFFFF) {
-		return 0 // Control RDRAM settings (timings?) Irrelevant for emulation.
+
+	for _, memoryRange := range m.memoryMap {
+		if inRange(physicalAddress, memoryRange.start, memoryRange.end) {
+			return memoryRange.p.Read(physicalAddress - memoryRange.start)
+		}
 	}
+
 	panic("Reading unmapped memory")
 }
 
@@ -81,24 +80,29 @@ func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
 	if m.cpu.exception {
 		return
 	}
-	if inRange(physicalAddress, 0x10000000, 0x1FBFFFFF) {
-		panic("Trying to write to cardridge ROM")
-	} else if inRange(physicalAddress, 0x04000000, 0x04000FFF) {
-		m.rspData.Write(physicalAddress-0x04000000, value)
-	} else if inRange(physicalAddress, 0x04001000, 0x04001FFF) {
-		m.rspInstr.Write(physicalAddress-0x04001000, value)
-	} else if inRange(physicalAddress, 0x04700000, 0x047FFFFF) {
-		// Control RDRAM settings (timings?) Irrelevant for emulation.
-	} else {
-		panic("Writing to unmapped memory")
+
+	for _, memoryRange := range m.memoryMap {
+		if inRange(physicalAddress, memoryRange.start, memoryRange.end) {
+			memoryRange.p.Write(physicalAddress-memoryRange.start, value)
+			return
+		}
 	}
 
+	panic("Writing to unmapped memory")
+}
+
+func (m *Machine) InitPeripherals() {
+	m.memoryMap = []MemoryRange{
+		MemoryRange{0x10000000, 0x1FBFFFFF, "Cardridge ROM", Memory{}},
+		MemoryRange{0x04000000, 0x04000FFF, "RSP Data Memory", make(Memory, 0x1000)},
+		MemoryRange{0x04001000, 0x04001FFF, "RSP Instruction Memory", make(Memory, 0x1000)},
+		MemoryRange{0x04700000, 0x047FFFFF, "RDRAM settings", &peripherals.Unused{}},
+		MemoryRange{0x04300000, 0x043FFFFF, "MIPS Interface", &peripherals.Mi{}},
+	}
 }
 
 func (m *Machine) Reset() {
 	m.cpu.reset()
-	m.rspData = make([]byte, 0x1000)
-	m.rspInstr = make([]byte, 0x1000)
 	/*
 		The first 0x1000 bytes from the cartridge are copied to SP DMEM.
 		This is implemented as a copy of 0x1000 bytes from 0xB0000000 to 0xA4000000.
@@ -120,7 +124,7 @@ func (m *Machine) LoadRom(filePath string) error {
 		return errors.New("ROM file is empty")
 	}
 
-	m.cardridgeROM = data
+	m.memoryMap[0].p = Memory(data) // cardridge ROM
 	fmt.Printf("Successfully loaded ROM: %s (%d B)\n", filePath, len(data))
 	return nil
 }

@@ -9,6 +9,7 @@ import (
 
 func main() {
 	var machine emu.Machine
+	machine.InitPeripherals()
 
 	config.ParseConfig()
 
