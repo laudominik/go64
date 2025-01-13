@@ -12,7 +12,7 @@ var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b001010: stub,
 	0b001011: stub,
 	0b001100: i_andi,
-	0b001101: stub,
+	0b001101: i_ori,
 	0b001110: stub,
 	0b001111: i_lui,
 	0b011000: stub,
@@ -95,7 +95,7 @@ func i_bne(m *Machine, instr Instruction) {
 }
 
 func i_addi(m *Machine, instr Instruction) {
-	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] + uint64(sext32(instr.imm, 16))
+	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] + sext64(uint64(instr.imm), 16)
 }
 
 func i_andi(m *Machine, instr Instruction) {
@@ -103,8 +103,8 @@ func i_andi(m *Machine, instr Instruction) {
 }
 
 func i_lw(m *Machine, instr Instruction) {
-	se := sext32(instr.imm, 16)
-	addr := m.cpu.r[instr.rs] + uint64(se)
+	se := sext64(uint64(instr.imm), 16)
+	addr := m.cpu.r[instr.rs] + se
 	v := m.readDWord(addr)
 	if m.cpu.exception { // exception when reading
 		return
@@ -114,7 +114,7 @@ func i_lw(m *Machine, instr Instruction) {
 
 func i_sw(m *Machine, instr Instruction) {
 	v := m.cpu.r[instr.rt]
-	addr := m.cpu.r[instr.rs] + uint64(sext32(instr.imm, 16))
+	addr := m.cpu.r[instr.rs] + sext64(uint64(instr.imm), 16)
 	m.writeDWord(addr, uint32(v))
 	// exception when writing can happen so this instruction won't have any effect
 }
@@ -146,4 +146,8 @@ func i_addiu(m *Machine, instr Instruction) {
 		should maybe consider that... but let's keep it simple for now
 	*/
 	i_addi(m, instr)
+}
+
+func i_ori(m *Machine, instr Instruction) {
+	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] | uint64(instr.imm)
 }

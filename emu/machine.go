@@ -61,6 +61,7 @@ func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
 	if virtualAddress&0b11 != 0 {
 		panic(fmt.Sprintf("Unaligned write at %x: %x", m.cpu.pc, virtualAddress))
 	}
+	virtualAddress &= 0xFFFFFFFF
 	hh := byte((value >> 24) & 0xFF)
 	hl := byte((value >> 16) & 0xFF)
 	lh := byte((value >> 8) & 0xFF)
