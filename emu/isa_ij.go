@@ -8,12 +8,13 @@ var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b000110: stub,
 	0b000111: stub,
 	0b001000: i_addi,
-	0b001001: stub,
+	0b001001: i_addiu,
 	0b001010: stub,
 	0b001011: stub,
 	0b001100: i_andi,
 	0b001101: stub,
 	0b001110: stub,
+	0b001111: i_lui,
 	0b011000: stub,
 	0b011001: stub,
 	0b011010: stub,
@@ -42,6 +43,7 @@ var ISA_IJ_MNEMONIC = map[uint32]string{
 	0b001100: "ANDI",
 	0b001101: "ORI",
 	0b001110: "XORI",
+	0b001111: "LUI",
 	0b011000: "LLO",
 	0b011001: "LHI",
 	0b011010: "TRAP",
@@ -70,6 +72,7 @@ var ISA_IJ_TYPE = map[uint32]int{
 	0b001100: INSTR_TYPE_I,
 	0b001101: INSTR_TYPE_I,
 	0b001110: INSTR_TYPE_I,
+	0b001111: INSTR_TYPE_I,
 	0b011000: INSTR_TYPE_I,
 	0b011001: INSTR_TYPE_I,
 	0b011010: INSTR_TYPE_J,
@@ -131,4 +134,16 @@ func i_lwr(m *Machine, instr Instruction) {
 	mask := (1 << (32 - shift)) - 1
 	extracted := (val & uint32(mask)) << shift
 	m.cpu.r[instr.rt] = (m.cpu.r[instr.rt] & ^uint64(mask<<shift)) | uint64(extracted)
+}
+
+func i_lui(m *Machine, instr Instruction) {
+	m.cpu.r[instr.rt] = uint64(instr.imm << 16)
+}
+
+func i_addiu(m *Machine, instr Instruction) {
+	/*
+		ADDIU performs the same arithmetic operation but, does not trap on overflow
+		should maybe consider that... but let's keep it simple for now
+	*/
+	i_addi(m, instr)
 }
