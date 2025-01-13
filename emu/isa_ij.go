@@ -2,7 +2,7 @@ package emu
 
 var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b000010: stub,
-	0b000011: stub,
+	0b000011: j_jal,
 	0b000100: stub,
 	0b000101: i_bne,
 	0b000110: stub,
@@ -150,4 +150,9 @@ func i_addiu(m *Machine, instr Instruction) {
 
 func i_ori(m *Machine, instr Instruction) {
 	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] | uint64(instr.imm)
+}
+
+func j_jal(m *Machine, instr Instruction) {
+	m.cpu.r[31] = m.cpu.pc
+	m.cpu.pc = (m.cpu.pc & 0xFFFFFFFFF0000000) + uint64(instr.tgt<<2)
 }

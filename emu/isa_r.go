@@ -21,7 +21,7 @@ var ISA_R_TABLE = map[uint32]InstructionCallback{
 	0b100010: stub,
 	0b100011: stub,
 	0b100100: stub,
-	0b100101: stub,
+	0b100101: r_or,
 	0b100110: r_xor,
 	0b100111: stub,
 	0b101010: stub,
@@ -70,4 +70,8 @@ func r_mfhi(m *Machine, instr Instruction) {
 
 func r_sll(m *Machine, instr Instruction) {
 	m.cpu.r[instr.rd] = m.cpu.r[instr.rt] << uint64(instr.sa)
+}
+
+func r_or(m *Machine, instr Instruction) {
+	m.cpu.r[instr.rd] = m.cpu.r[instr.rs] | m.cpu.r[instr.rt]
 }
