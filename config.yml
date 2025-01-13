@@ -1,2 +1,5 @@
 disassemble: true
 log_pc: true
+log_memory: 
+  read: true
+  write: true

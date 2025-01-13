@@ -62,9 +62,13 @@ func (m *Machine) readDWord(virtualAddress uint64) uint32 {
 	}
 
 	for _, memoryRange := range m.memoryMap {
-		if inRange(physicalAddress, memoryRange.start, memoryRange.end) {
-			return memoryRange.p.Read(physicalAddress - memoryRange.start)
+		if !inRange(physicalAddress, memoryRange.start, memoryRange.end) {
+			continue
 		}
+		if config.CONFIG.LogMemory.Read {
+			fmt.Printf("Memory read (0x%x) from %s\n", physicalAddress, memoryRange.name)
+		}
+		return memoryRange.p.Read(physicalAddress - memoryRange.start)
 	}
 
 	panic("Reading unmapped memory")
@@ -82,10 +86,14 @@ func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
 	}
 
 	for _, memoryRange := range m.memoryMap {
-		if inRange(physicalAddress, memoryRange.start, memoryRange.end) {
-			memoryRange.p.Write(physicalAddress-memoryRange.start, value)
-			return
+		if !inRange(physicalAddress, memoryRange.start, memoryRange.end) {
+			continue
 		}
+		if config.CONFIG.LogMemory.Write {
+			fmt.Printf("Memory write (0x%x -> 0x%x) to %s\n", physicalAddress, value, memoryRange.name)
+		}
+		memoryRange.p.Write(physicalAddress-memoryRange.start, value)
+		return
 	}
 
 	panic("Writing to unmapped memory")

@@ -10,6 +10,10 @@ import (
 type Config struct {
 	Disassemble bool `yaml:"disassemble"`
 	Pc          bool `yaml:"log_pc"`
+	LogMemory   struct {
+		Read  bool `yaml:"read"`
+		Write bool `yaml:"write"`
+	} `yaml:"log_memory"`
 }
 
 var CONFIG Config
