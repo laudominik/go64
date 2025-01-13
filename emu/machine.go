@@ -102,6 +102,7 @@ func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
 func (m *Machine) InitPeripherals() {
 	m.memoryMap = []MemoryRange{
 		MemoryRange{0x10000000, 0x1FBFFFFF, "Cardridge ROM", Memory{}},
+		MemoryRange{0x03F00000, 0x03FFFFFF, "RDRAM MMIO", &peripherals.Unused{}},
 		MemoryRange{0x04000000, 0x04000FFF, "RSP Data Memory", make(Memory, 0x1000)},
 		MemoryRange{0x04001000, 0x04001FFF, "RSP Instruction Memory", make(Memory, 0x1000)},
 		MemoryRange{0x04700000, 0x047FFFFF, "RDRAM settings", &peripherals.Unused{}},
