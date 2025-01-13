@@ -4,15 +4,18 @@ import (
 	"errors"
 	"fmt"
 	"go64/config"
+	"go64/emu/peripherals"
 	"os"
 )
 
 type Machine struct {
-	cpu          Cpu
-	cardridgeROM []byte // Cartridge Domain 1 Address 2
+	cpu Cpu
 
-	rspData  []byte // SP DMEM
-	rspInstr []byte // SP INSTR
+	/* memory map */
+	cardridgeROM Memory         // Cartridge Domain 1 Address 2
+	rspData      Memory         // SP DMEM
+	rspInstr     Memory         // SP INSTR
+	mi           peripherals.Mi // MIPS Interface (MI)
 }
 
 func inRange(arg, left, right uint64) bool {
@@ -49,12 +52,23 @@ func (m *Machine) readDWord(virtualAddress uint64) uint32 {
 		panic(fmt.Sprintf("Unaligned read at %x: %x", m.cpu.pc, virtualAddress))
 	}
 	virtualAddress &= 0xFFFFFFFF // todo: remove after implementing 64-bit mode
-	/* big endian */
-	hh := uint32(m.read(virtualAddress))
-	hl := uint32(m.read(virtualAddress + 1))
-	lh := uint32(m.read(virtualAddress + 2))
-	ll := uint32(m.read(virtualAddress + 3))
-	return ll + (lh << 8) + (hl << 16) + (hh << 24)
+
+	physicalAddress := m.cpu.translate(virtualAddress, true)
+	if m.cpu.exception {
+		return 0
+	}
+	if inRange(physicalAddress, 0x10000000, 0x1FBFFFFF) {
+		return m.cardridgeROM.Read(physicalAddress - 0x10000000)
+	} else if inRange(physicalAddress, 0x04000000, 0x04000FFF) {
+		return m.rspData.Read(physicalAddress - 0x04000000)
+	} else if inRange(physicalAddress, 0x04001000, 0x04001FFF) {
+		return m.rspInstr.Read(physicalAddress - 0x04001000)
+	} else if inRange(physicalAddress, 0x04300000, 0x043FFFFF) {
+		return m.mi.Read(physicalAddress)
+	} else if inRange(physicalAddress, 0x04700000, 0x047FFFFF) {
+		return 0 // Control RDRAM settings (timings?) Irrelevant for emulation.
+	}
+	panic("Reading unmapped memory")
 }
 
 func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
@@ -62,17 +76,7 @@ func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
 		panic(fmt.Sprintf("Unaligned write at %x: %x", m.cpu.pc, virtualAddress))
 	}
 	virtualAddress &= 0xFFFFFFFF
-	hh := byte((value >> 24) & 0xFF)
-	hl := byte((value >> 16) & 0xFF)
-	lh := byte((value >> 8) & 0xFF)
-	ll := byte(value & 0xFF)
-	m.write(virtualAddress, hh)
-	m.write(virtualAddress+1, hl)
-	m.write(virtualAddress+2, lh)
-	m.write(virtualAddress+3, ll)
-}
 
-func (m *Machine) write(virtualAddress uint64, value byte) {
 	physicalAddress := m.cpu.translate(virtualAddress, false)
 	if m.cpu.exception {
 		return
@@ -80,31 +84,15 @@ func (m *Machine) write(virtualAddress uint64, value byte) {
 	if inRange(physicalAddress, 0x10000000, 0x1FBFFFFF) {
 		panic("Trying to write to cardridge ROM")
 	} else if inRange(physicalAddress, 0x04000000, 0x04000FFF) {
-		m.rspData[physicalAddress-0x04000000] = value
+		m.rspData.Write(physicalAddress-0x04000000, value)
 	} else if inRange(physicalAddress, 0x04001000, 0x04001FFF) {
-		m.rspInstr[physicalAddress-0x04001000] = value
+		m.rspInstr.Write(physicalAddress-0x04001000, value)
 	} else if inRange(physicalAddress, 0x04700000, 0x047FFFFF) {
 		// Control RDRAM settings (timings?) Irrelevant for emulation.
 	} else {
 		panic("Writing to unmapped memory")
 	}
-}
 
-func (m *Machine) read(virtualAddress uint64) byte {
-	physicalAddress := m.cpu.translate(virtualAddress, true)
-	if m.cpu.exception {
-		return 0
-	}
-	if inRange(physicalAddress, 0x10000000, 0x1FBFFFFF) {
-		return m.cardridgeROM[physicalAddress-0x10000000]
-	} else if inRange(physicalAddress, 0x04000000, 0x04000FFF) {
-		return m.rspData[physicalAddress-0x04000000]
-	} else if inRange(physicalAddress, 0x04001000, 0x04001FFF) {
-		return m.rspInstr[physicalAddress-0x04001000]
-	} else if inRange(physicalAddress, 0x04700000, 0x047FFFFF) {
-		return 0 // Control RDRAM settings (timings?) Irrelevant for emulation.
-	}
-	panic("Reading unmapped memory")
 }
 
 func (m *Machine) Reset() {
@@ -115,8 +103,8 @@ func (m *Machine) Reset() {
 		The first 0x1000 bytes from the cartridge are copied to SP DMEM.
 		This is implemented as a copy of 0x1000 bytes from 0xB0000000 to 0xA4000000.
 	*/
-	for i := uint64(0); i < 0x1000; i++ {
-		m.write(0xA4000000+i, m.read(0xB0000000+i))
+	for i := uint64(0); i < 0x1000/4; i++ {
+		m.writeDWord(0xA4000000+4*i, m.readDWord(0xB0000000+4*i))
 	}
 }
 
