@@ -82,6 +82,8 @@ func (m *Machine) write(virtualAddress uint64, value byte) {
 		m.rspData[physicalAddress-0x04000000] = value
 	} else if inRange(physicalAddress, 0x04001000, 0x04001FFF) {
 		m.rspInstr[physicalAddress-0x04001000] = value
+	} else if inRange(physicalAddress, 0x04700000, 0x047FFFFF) {
+		// Control RDRAM settings (timings?) Irrelevant for emulation.
 	} else {
 		panic("Writing to unmapped memory")
 	}
@@ -98,6 +100,8 @@ func (m *Machine) read(virtualAddress uint64) byte {
 		return m.rspData[physicalAddress-0x04000000]
 	} else if inRange(physicalAddress, 0x04001000, 0x04001FFF) {
 		return m.rspInstr[physicalAddress-0x04001000]
+	} else if inRange(physicalAddress, 0x04700000, 0x047FFFFF) {
+		return 0 // Control RDRAM settings (timings?) Irrelevant for emulation.
 	}
 	panic("Reading unmapped memory")
 }
