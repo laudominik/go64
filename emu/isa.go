@@ -95,22 +95,6 @@ func decode(instrb uint32) Instruction {
 	return instr
 }
 
-func (instr Instruction) disassemble() string {
-	switch instr.ty {
-	case INSTR_TYPE_I:
-		return fmt.Sprintf("%s r%d r%d 0x%x", instr.mnemonic, instr.rs, instr.rt, instr.imm)
-	case INSTR_TYPE_J:
-		return fmt.Sprintf("%s 0x%x", instr.mnemonic, instr.tgt)
-	case INSTR_TYPE_R:
-		return fmt.Sprintf("%s r%d r%d r%d (shift=%d)", instr.mnemonic, instr.rs, instr.rt, instr.rd, instr.sa)
-	case INSTR_TYPE_REGIMM:
-		return fmt.Sprintf("%s r%d 0x%x", instr.mnemonic, instr.rs, instr.imm)
-	case INSTR_TYPE_COP0:
-		return fmt.Sprintf("%s r%d r%d %d", instr.mnemonic, instr.rt, instr.rd, instr.sa)
-	}
-	panic("Trying to disassemble invalid/undecoded function")
-}
-
 func stub(m *Machine, instr Instruction) {
 	panic(fmt.Sprintf("Calling a stub %s", instr.mnemonic))
 }
