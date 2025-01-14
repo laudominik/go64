@@ -161,7 +161,11 @@ func j_jal(m *Machine, instr Instruction) {
 }
 
 func i_slti(m *Machine, instr Instruction) {
-	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] << uint64(instr.imm)
+	if m.cpu.r[instr.rs] < uint64(instr.imm) {
+		m.cpu.r[instr.rt] = 1
+		return
+	}
+	m.cpu.r[instr.rt] = 0
 }
 
 func i_beql(m *Machine, instr Instruction) {
