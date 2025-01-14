@@ -2,7 +2,7 @@ package emu
 
 var ISA_R_TABLE = map[uint32]InstructionCallback{
 	0b000000: r_sll,
-	0b000010: stub,
+	0b000010: r_srl,
 	0b000011: stub,
 	0b000100: stub,
 	0b000110: stub,
@@ -78,4 +78,8 @@ func r_or(m *Machine, instr Instruction) {
 
 func r_jr(m *Machine, instr Instruction) {
 	m.cpu.pc = m.cpu.r[instr.rs]
+}
+
+func r_srl(m *Machine, instr Instruction) {
+	m.cpu.r[instr.rd] = m.cpu.r[instr.rt] >> instr.sa
 }
