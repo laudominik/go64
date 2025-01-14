@@ -77,7 +77,7 @@ func r_or(m *Machine, instr Instruction) {
 }
 
 func r_jr(m *Machine, instr Instruction) {
-	m.cpu.pc = m.cpu.r[instr.rs]
+	m.cpu.planJump(m.cpu.r[instr.rs])
 }
 
 func r_srl(m *Machine, instr Instruction) {

@@ -9,6 +9,14 @@ type Cpu struct {
 	tlb           [32][2]uint64
 	exception     bool
 	exceptionCode int
+	delaySlot     struct {
+		/*
+			this is supposed to imitate delay slots
+			delay slot should occur every jump
+		*/
+		in        bool
+		nextPCVal uint64
+	}
 }
 
 type Registers [32]uint64
@@ -104,4 +112,18 @@ func (cpu *Cpu) handleException() {
 			cpu.pc = 0xBFC00380
 		}
 	}
+}
+
+func (cpu *Cpu) planJump(addr uint64) {
+	cpu.delaySlot.nextPCVal = addr
+	cpu.delaySlot.in = true
+}
+
+func (cpu *Cpu) doJump() {
+	if !cpu.delaySlot.in {
+		panic("Trying to jump outside the delay slot")
+	}
+	cpu.pc = cpu.delaySlot.nextPCVal
+	cpu.delaySlot.in = false
+	cpu.delaySlot.nextPCVal = 0
 }

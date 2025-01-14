@@ -38,7 +38,13 @@ func (m *Machine) Tick() {
 		return
 	}
 	instr := decode(instrb)
-	m.execute(instr)
+
+	if m.cpu.delaySlot.in {
+		m.execute(instr)
+		m.cpu.doJump()
+	} else {
+		m.execute(instr)
+	}
 }
 
 func (m *Machine) execute(instr Instruction) {
@@ -71,7 +77,7 @@ func (m *Machine) readDWord(virtualAddress uint64) uint32 {
 		return memoryRange.p.Read(physicalAddress - memoryRange.start)
 	}
 
-	panic("Reading unmapped memory")
+	panic(fmt.Sprintf("Reading unmapped memory %x", virtualAddress))
 }
 
 func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
@@ -96,12 +102,13 @@ func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
 		return
 	}
 
-	panic("Writing to unmapped memory")
+	panic(fmt.Sprintf("Writing to unmapped memory %x -> %x", virtualAddress, value))
 }
 
 func (m *Machine) InitPeripherals() {
 	m.memoryMap = []MemoryRange{
-		MemoryRange{0x10000000, 0x1FBFFFFF, "Cardridge ROM", Memory{}},
+		MemoryRange{0x10000000, 0x1FBFFFFF, "Cardridge ROM", Memory{}}, // keep first
+		MemoryRange{0x00000000, 0x003FFFFF, "RDRAM", make(Memory, 0x400000)},
 		MemoryRange{0x03F00000, 0x03FFFFFF, "RDRAM MMIO", &peripherals.Unused{}},
 		MemoryRange{0x04000000, 0x04000FFF, "RSP Data Memory", make(Memory, 0x1000)},
 		MemoryRange{0x04001000, 0x04001FFF, "RSP Instruction Memory", make(Memory, 0x1000)},

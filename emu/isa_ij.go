@@ -97,7 +97,7 @@ func i_bne(m *Machine, instr Instruction) {
 	if m.cpu.r[instr.rs] == m.cpu.r[instr.rt] {
 		return
 	}
-	m.cpu.pc += uint64(sext32(instr.imm, 16)) * 4
+	m.cpu.planJump(m.cpu.pc + uint64(sext32(instr.imm, 16))*4)
 }
 
 func i_addi(m *Machine, instr Instruction) {
@@ -160,7 +160,7 @@ func i_ori(m *Machine, instr Instruction) {
 
 func j_jal(m *Machine, instr Instruction) {
 	m.cpu.r[31] = m.cpu.pc
-	m.cpu.pc = (m.cpu.pc & 0xFFFFFFFFF0000000) + uint64(instr.tgt<<2)
+	m.cpu.planJump((m.cpu.pc & 0xFFFFFFFFF0000000) + uint64(instr.tgt<<2))
 }
 
 func i_slti(m *Machine, instr Instruction) {
@@ -178,7 +178,7 @@ func i_beql(m *Machine, instr Instruction) {
 	if m.cpu.r[instr.rs] != m.cpu.r[instr.rt] {
 		return
 	}
-	m.cpu.pc += uint64(sext32(instr.imm, 16)) * 4
+	m.cpu.planJump(m.cpu.pc + uint64(sext32(instr.imm, 16))*4)
 }
 
 func i_xori(m *Machine, instr Instruction) {
