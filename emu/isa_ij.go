@@ -16,6 +16,7 @@ var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b001110: i_xori,
 	0b001111: i_lui,
 	0b010100: i_beql,
+	0b010101: i_bnel,
 	0b011000: stub,
 	0b011001: stub,
 	0b011010: stub,
@@ -46,6 +47,7 @@ var ISA_IJ_MNEMONIC = map[uint32]string{
 	0b001110: "XORI",
 	0b001111: "LUI",
 	0b010100: "BEQL",
+	0b010101: "BNEL",
 	0b011000: "LLO",
 	0b011001: "LHI",
 	0b011010: "TRAP",
@@ -76,6 +78,7 @@ var ISA_IJ_TYPE = map[uint32]int{
 	0b001110: INSTR_TYPE_I,
 	0b001111: INSTR_TYPE_I,
 	0b010100: INSTR_TYPE_I,
+	0b010101: INSTR_TYPE_I,
 	0b011000: INSTR_TYPE_I,
 	0b011001: INSTR_TYPE_I,
 	0b011010: INSTR_TYPE_J,
@@ -161,7 +164,7 @@ func j_jal(m *Machine, instr Instruction) {
 }
 
 func i_slti(m *Machine, instr Instruction) {
-	if m.cpu.r[instr.rs] < uint64(instr.imm) {
+	if int64(m.cpu.r[instr.rs]) < int64(instr.imm) {
 		m.cpu.r[instr.rt] = 1
 		return
 	}
@@ -180,4 +183,8 @@ func i_beql(m *Machine, instr Instruction) {
 
 func i_xori(m *Machine, instr Instruction) {
 	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] ^ uint64(instr.imm)
+}
+
+func i_bnel(m *Machine, instr Instruction) {
+	i_bne(m, instr)
 }
