@@ -9,12 +9,13 @@ var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b000111: stub,
 	0b001000: i_addi,
 	0b001001: i_addiu,
-	0b001010: stub,
+	0b001010: i_slti,
 	0b001011: stub,
 	0b001100: i_andi,
 	0b001101: i_ori,
 	0b001110: stub,
 	0b001111: i_lui,
+	0b010100: i_beql,
 	0b011000: stub,
 	0b011001: stub,
 	0b011010: stub,
@@ -44,6 +45,7 @@ var ISA_IJ_MNEMONIC = map[uint32]string{
 	0b001101: "ORI",
 	0b001110: "XORI",
 	0b001111: "LUI",
+	0b010100: "BEQL",
 	0b011000: "LLO",
 	0b011001: "LHI",
 	0b011010: "TRAP",
@@ -73,6 +75,7 @@ var ISA_IJ_TYPE = map[uint32]int{
 	0b001101: INSTR_TYPE_I,
 	0b001110: INSTR_TYPE_I,
 	0b001111: INSTR_TYPE_I,
+	0b010100: INSTR_TYPE_I,
 	0b011000: INSTR_TYPE_I,
 	0b011001: INSTR_TYPE_I,
 	0b011010: INSTR_TYPE_J,
@@ -155,4 +158,18 @@ func i_ori(m *Machine, instr Instruction) {
 func j_jal(m *Machine, instr Instruction) {
 	m.cpu.r[31] = m.cpu.pc
 	m.cpu.pc = (m.cpu.pc & 0xFFFFFFFFF0000000) + uint64(instr.tgt<<2)
+}
+
+func i_slti(m *Machine, instr Instruction) {
+	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] << uint64(instr.imm)
+}
+
+func i_beql(m *Machine, instr Instruction) {
+	/* 	how does it differ from beq?
+	I suppose it is used in branch predictor
+	so from emulation POV no difference */
+	if m.cpu.r[instr.rs] != m.cpu.r[instr.rt] {
+		return
+	}
+	m.cpu.pc += uint64(sext32(instr.imm, 16)) * 4
 }
