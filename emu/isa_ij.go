@@ -13,7 +13,7 @@ var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b001011: stub,
 	0b001100: i_andi,
 	0b001101: i_ori,
-	0b001110: stub,
+	0b001110: i_xori,
 	0b001111: i_lui,
 	0b010100: i_beql,
 	0b011000: stub,
@@ -176,4 +176,8 @@ func i_beql(m *Machine, instr Instruction) {
 		return
 	}
 	m.cpu.pc += uint64(sext32(instr.imm, 16)) * 4
+}
+
+func i_xori(m *Machine, instr Instruction) {
+	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] ^ uint64(instr.imm)
 }
