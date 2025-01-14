@@ -6,7 +6,7 @@ var ISA_R_TABLE = map[uint32]InstructionCallback{
 	0b000011: stub,
 	0b000100: stub,
 	0b000110: stub,
-	0b001000: stub,
+	0b001000: r_jr,
 	0b001001: stub,
 	0b010000: r_mfhi,
 	0b010001: stub,
@@ -74,4 +74,8 @@ func r_sll(m *Machine, instr Instruction) {
 
 func r_or(m *Machine, instr Instruction) {
 	m.cpu.r[instr.rd] = m.cpu.r[instr.rs] | m.cpu.r[instr.rt]
+}
+
+func r_jr(m *Machine, instr Instruction) {
+	m.cpu.pc = m.cpu.r[instr.rs]
 }
