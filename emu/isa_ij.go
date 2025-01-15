@@ -3,7 +3,7 @@ package emu
 var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b000010: stub,
 	0b000011: j_jal,
-	0b000100: stub,
+	0b000100: i_beq,
 	0b000101: i_bne,
 	0b000110: stub,
 	0b000111: stub,
@@ -95,6 +95,13 @@ var ISA_IJ_TYPE = map[uint32]int{
 
 func i_bne(m *Machine, instr Instruction) {
 	if m.cpu.r[instr.rs] == m.cpu.r[instr.rt] {
+		return
+	}
+	m.cpu.planJump(m.cpu.pc + uint64(sext32(instr.imm, 16))*4)
+}
+
+func i_beq(m *Machine, instr Instruction) {
+	if m.cpu.r[instr.rs] != m.cpu.r[instr.rt] {
 		return
 	}
 	m.cpu.planJump(m.cpu.pc + uint64(sext32(instr.imm, 16))*4)
