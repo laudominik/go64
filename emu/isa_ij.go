@@ -17,6 +17,7 @@ var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b001111: i_lui,
 	0b010100: i_beql,
 	0b010101: i_bnel,
+	0b010110: i_blezl,
 	0b011000: stub,
 	0b011001: stub,
 	0b011010: stub,
@@ -48,6 +49,7 @@ var ISA_IJ_MNEMONIC = map[uint32]string{
 	0b001111: "LUI",
 	0b010100: "BEQL",
 	0b010101: "BNEL",
+	0b010110: "BLEZL",
 	0b011000: "LLO",
 	0b011001: "LHI",
 	0b011010: "TRAP",
@@ -79,6 +81,7 @@ var ISA_IJ_TYPE = map[uint32]int{
 	0b001111: INSTR_TYPE_I,
 	0b010100: INSTR_TYPE_I,
 	0b010101: INSTR_TYPE_I,
+	0b010110: INSTR_TYPE_I,
 	0b011000: INSTR_TYPE_I,
 	0b011001: INSTR_TYPE_I,
 	0b011010: INSTR_TYPE_J,
@@ -194,4 +197,11 @@ func i_xori(m *Machine, instr Instruction) {
 
 func i_bnel(m *Machine, instr Instruction) {
 	i_bne(m, instr)
+}
+
+func i_blezl(m *Machine, instr Instruction) {
+	if int64(m.cpu.r[instr.rs]) > 0 {
+		return
+	}
+	m.cpu.planJump(m.cpu.pc + uint64(sext32(instr.imm, 16))*4)
 }
