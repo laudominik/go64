@@ -12,7 +12,7 @@ var ISA_R_TABLE = map[uint32]InstructionCallback{
 	0b001001: stub,
 	0b010000: r_mfhi,
 	0b010001: stub,
-	0b010010: stub,
+	0b010010: r_mflo,
 	0b010011: stub,
 	0b011000: r_mult,
 	0b011001: r_mult,
@@ -72,6 +72,10 @@ func r_xor(m *Machine, instr Instruction) {
 
 func r_mfhi(m *Machine, instr Instruction) {
 	m.cpu.r[instr.rd] = m.cpu.hi
+}
+
+func r_mflo(m *Machine, instr Instruction) {
+	m.cpu.r[instr.rd] = m.cpu.lo
 }
 
 func r_sll(m *Machine, instr Instruction) {
