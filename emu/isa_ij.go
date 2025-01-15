@@ -30,6 +30,7 @@ var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b101000: stub,
 	0b101001: stub,
 	0b101011: i_sw,
+	0b101111: i_cache,
 }
 
 var ISA_IJ_MNEMONIC = map[uint32]string{
@@ -62,6 +63,7 @@ var ISA_IJ_MNEMONIC = map[uint32]string{
 	0b101000: "SB",
 	0b101001: "SH",
 	0b101011: "SW",
+	0b101111: "CACHE",
 }
 
 var ISA_IJ_TYPE = map[uint32]int{
@@ -94,6 +96,7 @@ var ISA_IJ_TYPE = map[uint32]int{
 	0b101000: INSTR_TYPE_I,
 	0b101001: INSTR_TYPE_I,
 	0b101011: INSTR_TYPE_I,
+	0b101111: INSTR_TYPE_I,
 }
 
 func i_bne(m *Machine, instr Instruction) {
@@ -204,4 +207,9 @@ func i_blezl(m *Machine, instr Instruction) {
 		return
 	}
 	m.cpu.planJump(m.cpu.pc + uint64(sext32(instr.imm, 16))*4)
+}
+
+func i_cache(m *Machine, instr Instruction) {
+	/* Not needed
+	not 100% sure so sth to keep in mind */
 }
