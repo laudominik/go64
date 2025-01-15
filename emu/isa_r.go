@@ -26,7 +26,7 @@ var ISA_R_TABLE = map[uint32]InstructionCallback{
 	0b100101: r_or,
 	0b100110: r_xor,
 	0b100111: stub,
-	0b101010: stub,
+	0b101010: r_slt,
 	0b101011: stub,
 }
 
@@ -92,4 +92,12 @@ func r_jr(m *Machine, instr Instruction) {
 
 func r_srl(m *Machine, instr Instruction) {
 	m.cpu.r[instr.rd] = m.cpu.r[instr.rt] >> instr.sa
+}
+
+func r_slt(m *Machine, instr Instruction) {
+	if int64(m.cpu.r[instr.rs]) < int64(m.cpu.r[instr.rt]) {
+		m.cpu.r[instr.rd] = 1
+		return
+	}
+	m.cpu.r[instr.rd] = 0
 }
