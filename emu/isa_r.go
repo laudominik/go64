@@ -19,10 +19,10 @@ var ISA_R_TABLE = map[uint32]InstructionCallback{
 	0b011010: stub,
 	0b011011: stub,
 	0b100000: r_add,
-	0b100001: stub,
-	0b100010: stub,
-	0b100011: stub,
-	0b100100: stub,
+	0b100001: r_add,
+	0b100010: r_sub,
+	0b100011: r_sub,
+	0b100100: r_and,
 	0b100101: r_or,
 	0b100110: r_xor,
 	0b100111: stub,
@@ -66,6 +66,10 @@ func r_add(m *Machine, instr Instruction) {
 	m.cpu.r[instr.rd] = m.cpu.r[instr.rs] + m.cpu.r[instr.rt]
 }
 
+func r_sub(m *Machine, instr Instruction) {
+	m.cpu.r[instr.rd] = m.cpu.r[instr.rs] - m.cpu.r[instr.rt]
+}
+
 func r_xor(m *Machine, instr Instruction) {
 	m.cpu.r[instr.rd] = m.cpu.r[instr.rs] ^ m.cpu.r[instr.rt]
 }
@@ -84,6 +88,10 @@ func r_sll(m *Machine, instr Instruction) {
 
 func r_or(m *Machine, instr Instruction) {
 	m.cpu.r[instr.rd] = m.cpu.r[instr.rs] | m.cpu.r[instr.rt]
+}
+
+func r_and(m *Machine, instr Instruction) {
+	m.cpu.r[instr.rd] = m.cpu.r[instr.rs] & m.cpu.r[instr.rt]
 }
 
 func r_jr(m *Machine, instr Instruction) {
