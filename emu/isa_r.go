@@ -1,5 +1,7 @@
 package emu
 
+import b "math/bits"
+
 var ISA_R_TABLE = map[uint32]InstructionCallback{
 	0b000000: r_sll,
 	0b000010: r_srl,
@@ -12,8 +14,8 @@ var ISA_R_TABLE = map[uint32]InstructionCallback{
 	0b010001: stub,
 	0b010010: stub,
 	0b010011: stub,
-	0b011000: stub,
-	0b011001: stub,
+	0b011000: r_mult,
+	0b011001: r_mult,
 	0b011010: stub,
 	0b011011: stub,
 	0b100000: r_add,
@@ -54,6 +56,10 @@ var ISA_R_MNEMONIC = map[uint32]string{
 	0b100111: "NOR",
 	0b101010: "SLT",
 	0b101011: "SLTU",
+}
+
+func r_mult(m *Machine, instr Instruction) {
+	m.cpu.hi, m.cpu.lo = b.Mul64(m.cpu.r[instr.rs], m.cpu.r[instr.rt])
 }
 
 func r_add(m *Machine, instr Instruction) {
