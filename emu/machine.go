@@ -77,7 +77,7 @@ func (m *Machine) readDWord(virtualAddress uint64) uint32 {
 		return memoryRange.p.Read(physicalAddress - memoryRange.start)
 	}
 
-	panic(fmt.Sprintf("Reading unmapped memory %x", virtualAddress))
+	panic(fmt.Sprintf("Reading unmapped memory 0x%x", physicalAddress))
 }
 
 func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
@@ -102,7 +102,7 @@ func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
 		return
 	}
 
-	panic(fmt.Sprintf("Writing to unmapped memory %x -> %x", virtualAddress, value))
+	panic(fmt.Sprintf("Writing to unmapped memory 0x%x -> 0x%x", physicalAddress, value))
 }
 
 func (m *Machine) InitPeripherals() {
@@ -112,8 +112,9 @@ func (m *Machine) InitPeripherals() {
 		MemoryRange{0x03F00000, 0x03FFFFFF, "RDRAM MMIO", &peripherals.Unused{}},
 		MemoryRange{0x04000000, 0x04000FFF, "RSP Data Memory", make(Memory, 0x1000)},
 		MemoryRange{0x04001000, 0x04001FFF, "RSP Instruction Memory", make(Memory, 0x1000)},
-		MemoryRange{0x04700000, 0x047FFFFF, "RDRAM settings", &peripherals.Unused{}},
+		MemoryRange{0x04040000, 0x040FFFFF, "SP Registers", &peripherals.SpRegs{}},
 		MemoryRange{0x04300000, 0x043FFFFF, "MIPS Interface", &peripherals.Mi{}},
+		MemoryRange{0x04700000, 0x047FFFFF, "RDRAM settings", &peripherals.Unused{}},
 	}
 }
 
