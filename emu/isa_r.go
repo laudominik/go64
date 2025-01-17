@@ -27,7 +27,7 @@ var ISA_R_TABLE = map[uint32]InstructionCallback{
 	0b100110: r_xor,
 	0b100111: stub,
 	0b101010: r_slt,
-	0b101011: stub,
+	0b101011: r_sltu,
 }
 
 var ISA_R_MNEMONIC = map[uint32]string{
@@ -104,6 +104,14 @@ func r_srl(m *Machine, instr Instruction) {
 
 func r_slt(m *Machine, instr Instruction) {
 	if int64(m.cpu.r[instr.rs]) < int64(m.cpu.r[instr.rt]) {
+		m.cpu.r[instr.rd] = 1
+		return
+	}
+	m.cpu.r[instr.rd] = 0
+}
+
+func r_sltu(m *Machine, instr Instruction) {
+	if m.cpu.r[instr.rs] < m.cpu.r[instr.rt] {
 		m.cpu.r[instr.rd] = 1
 		return
 	}
