@@ -68,7 +68,10 @@ func (m *Machine) readDWord(virtualAddress uint64) uint32 {
 	if m.cpu.exception {
 		return 0
 	}
+	return m.readDwordPhys(physicalAddress)
+}
 
+func (m *Machine) readDwordPhys(physicalAddress uint64) uint32 {
 	for _, memoryRange := range m.memoryMap {
 		if !inRange(physicalAddress, memoryRange.start, memoryRange.end) {
 			continue
@@ -92,7 +95,10 @@ func (m *Machine) writeDWord(virtualAddress uint64, value uint32) {
 	if m.cpu.exception {
 		return
 	}
+	m.writeDWordPhys(physicalAddress, value)
+}
 
+func (m *Machine) writeDWordPhys(physicalAddress uint64, value uint32) {
 	for _, memoryRange := range m.memoryMap {
 		if !inRange(physicalAddress, memoryRange.start, memoryRange.end) {
 			continue
@@ -116,7 +122,7 @@ func (m *Machine) InitPeripherals() {
 		{0x04001000, 0x04001FFF, "RSP Instruction Memory", make(Memory, 0x1000)},
 		{0x04040000, 0x040FFFFF, "SP Registers", CreateSpRegs(m)},
 		{0x04300000, 0x043FFFFF, "MIPS Interface", &peripherals.Mi{}},
-		{0x04600000, 0x046FFFFF, "Peripheral Interface", &Pi{}},
+		{0x04600000, 0x046FFFFF, "Peripheral Interface", CreatePi(m)},
 		{0x04700000, 0x047FFFFF, "RDRAM settings", &peripherals.Unused{}},
 	}
 }
