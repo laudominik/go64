@@ -3,6 +3,7 @@ package emu
 import (
 	"fmt"
 	"go64/config"
+	"go64/emu/util"
 )
 
 type Instruction struct {
@@ -33,25 +34,20 @@ const INSTR_TYPE_J = -2
 const INSTR_TYPE_REGIMM = 0b000001
 const INSTR_TYPE_COP0 = 0b010000
 
-func bits(num, end, start uint32) uint32 {
-	mask := uint32((1 << (end - start + 1)) - 1)
-	return (num >> start) & mask
-}
-
 func decode(instrb uint32) Instruction {
 	instr := Instruction{
 		mnemonic: "",
 		ty:       -1,
 		callback: nil,
 		instrb:   instrb,
-		opcode:   bits(instrb, 31, 26),
-		rs:       bits(instrb, 25, 21),
-		rt:       bits(instrb, 20, 16),
-		imm:      bits(instrb, 15, 0),
-		rd:       bits(instrb, 15, 11),
-		sa:       bits(instrb, 10, 6),
-		funct:    bits(instrb, 5, 0),
-		tgt:      bits(instrb, 25, 0),
+		opcode:   util.Bits(instrb, 31, 26),
+		rs:       util.Bits(instrb, 25, 21),
+		rt:       util.Bits(instrb, 20, 16),
+		imm:      util.Bits(instrb, 15, 0),
+		rd:       util.Bits(instrb, 15, 11),
+		sa:       util.Bits(instrb, 10, 6),
+		funct:    util.Bits(instrb, 5, 0),
+		tgt:      util.Bits(instrb, 25, 0),
 	}
 
 	var callback InstructionCallback
