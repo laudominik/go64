@@ -16,9 +16,14 @@ const STATUS_SX = 6
 const STATUS_KX = 7
 const STATUS_BEV = 22
 
-func (cpu *Cpu) raiseInterrupt() {
+func (cpu *Cpu) raiseInterrupt(mask uint32) {
+	if cpu.mi.InterruptMask&mask != 0 {
+		return
+	}
+
 	cpu.exception = true
 	cpu.exceptionCode = EXCEPTION_INTERRUPT
+	cpu.mi.Interrupt = mask
 }
 
 func (cpu *Cpu) raiseException(code int) {

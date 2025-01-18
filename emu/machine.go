@@ -121,7 +121,7 @@ func (m *Machine) InitPeripherals() {
 		{0x04000000, 0x04000FFF, "RSP Data Memory", make(Memory, 0x1000)},
 		{0x04001000, 0x04001FFF, "RSP Instruction Memory", make(Memory, 0x1000)},
 		{0x04040000, 0x040FFFFF, "SP Registers", CreateSpRegs(m)},
-		{0x04300000, 0x043FFFFF, "MIPS Interface", &peripherals.Mi{}},
+		{0x04300000, 0x043FFFFF, "MIPS Interface", &m.cpu.mi},
 		{0x04600000, 0x046FFFFF, "Peripheral Interface", CreatePi(m)},
 		{0x04700000, 0x047FFFFF, "RDRAM settings", &peripherals.Unused{}},
 	}
