@@ -1,7 +1,7 @@
 N64 emulator
 
 current goals:
-* emulate cic-nus 6105 boot code (nice disassembly source below)
+* emulate cic-nus 6105 boot code (nice disassembly source below) [OK]
 * run tloz oot
 
 reference: 
@@ -11,6 +11,7 @@ reference:
 * http://n64dev.org/p/U10504EJ7V0UMJ1.pdf
 * https://hack64.net/
 * https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00086-2B-MIPS32BIS-AFP-05.04.pdf
+* https://github.com/Dillonb/n64/tree/master
 
 disassemblies:
 * https://github.com/Roman971/oot-disassembly/tree/master

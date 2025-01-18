@@ -31,15 +31,11 @@ func (cpu *Cpu) translate(virtualAddress uint64, isRead bool) uint64 {
 }
 
 func (cpu *Cpu) tlbTranslate(virtualAddress uint64, isRead bool) uint64 {
-	// for entry := range cpu.tlb {
-
-	// }
-
-	cpu.exception = true
 	if isRead {
-		cpu.exceptionCode = EXCEPTION_TLB_MISS_STORE
+		cpu.raiseException(EXCEPTION_TLB_MISS_STORE)
 	} else {
-		cpu.exceptionCode = EXCEPTION_TLB_MISS_LOAD
+		cpu.raiseException(EXCEPTION_TLB_MISS_LOAD)
 	}
+
 	return 0
 }

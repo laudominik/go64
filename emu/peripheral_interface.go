@@ -64,5 +64,6 @@ func (pi *Pi) doDmaTransfer(from uint32, to uint32, len uint32) {
 	for i := uint32(0); i < len; i += 4 {
 		m.writeDWordPhys(uint64(to+i), m.readDwordPhys(uint64(from+i)))
 	}
-	panic("Interrupts not implemented yet")
+
+	m.cpu.raiseInterrupt()
 }
