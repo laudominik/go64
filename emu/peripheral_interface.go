@@ -2,6 +2,7 @@ package emu
 
 import (
 	"fmt"
+	"go64/emu/peripherals"
 )
 
 type Pi struct {
@@ -65,5 +66,5 @@ func (pi *Pi) doDmaTransfer(from uint32, to uint32, len uint32) {
 		m.writeDWordPhys(uint64(to+i), m.readDwordPhys(uint64(from+i)))
 	}
 
-	m.cpu.raiseInterrupt()
+	m.cpu.raiseInterrupt(peripherals.PI_MASK)
 }
