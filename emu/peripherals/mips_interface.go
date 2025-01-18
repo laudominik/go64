@@ -18,12 +18,12 @@ const VI_BIT = 3
 const PI_BIT = 4
 const DP_BIT = 5
 
-var SP_MASK uint32 = util.Mask(1 << SP_BIT)
-var SI_MASK uint32 = util.Mask(1 << SI_BIT)
-var AI_MASK uint32 = util.Mask(1 << AI_BIT)
-var VI_MASK uint32 = util.Mask(1 << VI_BIT)
-var PI_MASK uint32 = util.Mask(1 << PI_BIT)
-var DP_MASK uint32 = util.Mask(1 << DP_BIT)
+var SP_MASK uint32 = util.Mask(SP_BIT)
+var SI_MASK uint32 = util.Mask(SI_BIT)
+var AI_MASK uint32 = util.Mask(AI_BIT)
+var VI_MASK uint32 = util.Mask(VI_BIT)
+var PI_MASK uint32 = util.Mask(PI_BIT)
+var DP_MASK uint32 = util.Mask(DP_BIT)
 
 func (mi *Mi) Read(reg uint64) uint32 {
 	switch reg {

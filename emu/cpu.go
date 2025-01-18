@@ -39,6 +39,7 @@ func (cpu *Cpu) reset() {
 	cpu.cop0[15] = 0x00000B00
 	cpu.cop0[16] = 0x0006E463
 	cpu.pc = 0xA4000040
+	cpu.mi.InterruptMask = 0b111111
 }
 
 func (cpu *Cpu) planJump(addr uint64) {
