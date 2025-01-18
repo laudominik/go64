@@ -10,6 +10,7 @@ import (
 
 type Machine struct {
 	cpu Cpu
+	rsp Rsp
 
 	memoryMap []MemoryRange
 }
@@ -112,7 +113,7 @@ func (m *Machine) InitPeripherals() {
 		MemoryRange{0x03F00000, 0x03FFFFFF, "RDRAM MMIO", &peripherals.Unused{}},
 		MemoryRange{0x04000000, 0x04000FFF, "RSP Data Memory", make(Memory, 0x1000)},
 		MemoryRange{0x04001000, 0x04001FFF, "RSP Instruction Memory", make(Memory, 0x1000)},
-		MemoryRange{0x04040000, 0x040FFFFF, "SP Registers", &peripherals.SpRegs{}},
+		MemoryRange{0x04040000, 0x040FFFFF, "SP Registers", CreateSpRegs(m)},
 		MemoryRange{0x04300000, 0x043FFFFF, "MIPS Interface", &peripherals.Mi{}},
 		MemoryRange{0x04700000, 0x047FFFFF, "RDRAM settings", &peripherals.Unused{}},
 	}
