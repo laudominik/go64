@@ -1,5 +1,7 @@
 package emu
 
+import "go64/emu/util"
+
 var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b000010: stub,
 	0b000011: j_jal,
@@ -103,18 +105,18 @@ func i_bne(m *Machine, instr Instruction) {
 	if m.cpu.r[instr.rs] == m.cpu.r[instr.rt] {
 		return
 	}
-	m.cpu.planJump(m.cpu.pc + uint64(sext32(instr.imm, 16))*4)
+	m.cpu.planJump(m.cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
 }
 
 func i_beq(m *Machine, instr Instruction) {
 	if m.cpu.r[instr.rs] != m.cpu.r[instr.rt] {
 		return
 	}
-	m.cpu.planJump(m.cpu.pc + uint64(sext32(instr.imm, 16))*4)
+	m.cpu.planJump(m.cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
 }
 
 func i_addi(m *Machine, instr Instruction) {
-	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] + sext64(uint64(instr.imm), 16)
+	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] + util.Sext64(uint64(instr.imm), 16)
 }
 
 func i_andi(m *Machine, instr Instruction) {
@@ -122,7 +124,7 @@ func i_andi(m *Machine, instr Instruction) {
 }
 
 func i_lw(m *Machine, instr Instruction) {
-	se := sext64(uint64(instr.imm), 16)
+	se := util.Sext64(uint64(instr.imm), 16)
 	addr := m.cpu.r[instr.rs] + se
 	v := m.readDWord(addr)
 	if m.cpu.exception { // exception when reading
@@ -133,13 +135,13 @@ func i_lw(m *Machine, instr Instruction) {
 
 func i_sw(m *Machine, instr Instruction) {
 	v := m.cpu.r[instr.rt]
-	addr := m.cpu.r[instr.rs] + sext64(uint64(instr.imm), 16)
+	addr := m.cpu.r[instr.rs] + util.Sext64(uint64(instr.imm), 16)
 	m.writeDWord(addr, uint32(v))
 	// exception when writing can happen so this instruction won't have any effect
 }
 
 func i_lwr(m *Machine, instr Instruction) {
-	addr := m.cpu.r[instr.rs] + uint64(sext32(instr.imm, 16))
+	addr := m.cpu.r[instr.rs] + uint64(util.Sext32(instr.imm, 16))
 
 	offset := addr % 4 // byte number in word
 	aligned := addr - (addr % 4)
@@ -191,7 +193,7 @@ func i_beql(m *Machine, instr Instruction) {
 	if m.cpu.r[instr.rs] != m.cpu.r[instr.rt] {
 		return
 	}
-	m.cpu.planJump(m.cpu.pc + uint64(sext32(instr.imm, 16))*4)
+	m.cpu.planJump(m.cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
 }
 
 func i_xori(m *Machine, instr Instruction) {
@@ -206,7 +208,7 @@ func i_blezl(m *Machine, instr Instruction) {
 	if int64(m.cpu.r[instr.rs]) > 0 {
 		return
 	}
-	m.cpu.planJump(m.cpu.pc + uint64(sext32(instr.imm, 16))*4)
+	m.cpu.planJump(m.cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
 }
 
 func i_cache(m *Machine, instr Instruction) {

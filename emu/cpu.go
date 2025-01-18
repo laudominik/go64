@@ -1,5 +1,7 @@
 package emu
 
+import "go64/emu/peripherals"
+
 type Cpu struct {
 	pc            uint64
 	r             Registers
@@ -17,14 +19,10 @@ type Cpu struct {
 		in        bool
 		nextPCVal uint64
 	}
+	mi peripherals.Mi
 }
 
 type Registers [32]uint64
-
-type Exceptions struct {
-	tlb   bool
-	tlb64 bool
-}
 
 func (cpu *Cpu) reset() {
 	/*
@@ -41,22 +39,6 @@ func (cpu *Cpu) reset() {
 	cpu.cop0[15] = 0x00000B00
 	cpu.cop0[16] = 0x0006E463
 	cpu.pc = 0xA4000040
-}
-
-func sext32(num uint32, ogBits int) uint32 {
-	signBit := uint32(1 << (ogBits - 1))
-	if num&signBit != 0 {
-		return uint32(num | ^((1 << ogBits) - 1))
-	}
-	return uint32(num & ((1 << ogBits) - 1))
-}
-
-func sext64(num uint64, ogBits int) uint64 {
-	signBit := uint64(1 << (ogBits - 1))
-	if num&signBit != 0 {
-		return uint64(num | ^((1 << ogBits) - 1))
-	}
-	return uint64(num & ((1 << ogBits) - 1))
 }
 
 func (cpu *Cpu) planJump(addr uint64) {
