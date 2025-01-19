@@ -29,6 +29,10 @@ func (cpu *Cpu) RaiseInterrupt(mask uint32) {
 	cpu.Mi.Interrupt = mask
 }
 
+func (cpu *Cpu) LowerInterrupt(mask uint32) {
+	cpu.Mi.Interrupt &= ^mask
+}
+
 func (cpu *Cpu) raiseException(code int) {
 	cpu.Exception = true
 	cpu.exceptionCode = code
