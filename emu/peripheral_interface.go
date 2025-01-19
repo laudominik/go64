@@ -3,6 +3,7 @@ package emu
 import (
 	"fmt"
 	"go64/emu/peripherals"
+	"go64/emu/util"
 )
 
 type Pi struct {
@@ -21,9 +22,11 @@ func CreatePi(m *Machine) *Pi {
 }
 
 func (pi *Pi) Read(reg uint64) uint32 {
+	m := pi.m
 	switch reg {
 	case 0x10:
-		return (pi.dmaBusy | pi.ioBusy) /* todo: add PI interrupt */
+		piInterrupt := util.Bit(m.cpu.mi.Interrupt, peripherals.PI_BIT)
+		return (pi.dmaBusy | pi.ioBusy | piInterrupt<<3)
 	default:
 		panic(fmt.Sprintf("Reading from unimplemented PI register 0x%x", reg))
 	}
