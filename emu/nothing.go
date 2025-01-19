@@ -1,4 +1,4 @@
-package peripherals
+package emu
 
 type Unused []byte
 

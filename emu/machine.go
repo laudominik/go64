@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"go64/config"
-	"go64/emu/peripherals"
 	"os"
 )
 
@@ -20,7 +19,7 @@ type MemoryRange struct {
 	start uint64
 	end   uint64
 	name  string
-	p     peripherals.Peripheral
+	p     Peripheral
 }
 
 func inRange(arg, left, right uint64) bool {
@@ -117,13 +116,13 @@ func (m *Machine) InitPeripherals() {
 	m.memoryMap = []MemoryRange{
 		{0x10000000, 0x1FBFFFFF, "Cartridge ROM", &m.cartridgeRom},
 		{0x00000000, 0x003FFFFF, "RDRAM", make(Memory, 0x400000)},
-		{0x03F00000, 0x03FFFFFF, "RDRAM MMIO", &peripherals.Unused{}},
+		{0x03F00000, 0x03FFFFFF, "RDRAM MMIO", &Unused{}},
 		{0x04000000, 0x04000FFF, "RSP Data Memory", make(Memory, 0x1000)},
 		{0x04001000, 0x04001FFF, "RSP Instruction Memory", make(Memory, 0x1000)},
 		{0x04040000, 0x040FFFFF, "SP Registers", CreateSpRegs(m)},
 		{0x04300000, 0x043FFFFF, "MIPS Interface", &m.cpu.mi},
 		{0x04600000, 0x046FFFFF, "Peripheral Interface", CreatePi(m)},
-		{0x04700000, 0x047FFFFF, "RDRAM settings", &peripherals.Unused{}},
+		{0x04700000, 0x047FFFFF, "RDRAM settings", &Unused{}},
 	}
 }
 

@@ -1,7 +1,5 @@
 package emu
 
-import "go64/emu/peripherals"
-
 type Cpu struct {
 	pc            uint64
 	r             Registers
@@ -19,7 +17,7 @@ type Cpu struct {
 		in        bool
 		nextPCVal uint64
 	}
-	mi peripherals.Mi
+	mi Mi
 }
 
 type Registers [32]uint64

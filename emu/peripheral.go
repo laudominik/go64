@@ -1,4 +1,4 @@
-package peripherals
+package emu
 
 type Peripheral interface {
 	Read(reg uint64) uint32

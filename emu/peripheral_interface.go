@@ -2,7 +2,6 @@ package emu
 
 import (
 	"fmt"
-	"go64/emu/peripherals"
 	"go64/emu/util"
 )
 
@@ -25,7 +24,7 @@ func (pi *Pi) Read(reg uint64) uint32 {
 	m := pi.m
 	switch reg {
 	case 0x10:
-		piInterrupt := util.Bit(m.cpu.mi.Interrupt, peripherals.PI_BIT)
+		piInterrupt := util.Bit(m.cpu.mi.Interrupt, PI_BIT)
 		return (pi.dmaBusy | pi.ioBusy | piInterrupt<<3)
 	default:
 		panic(fmt.Sprintf("Reading from unimplemented PI register 0x%x", reg))
@@ -69,5 +68,5 @@ func (pi *Pi) doDmaTransfer(from uint32, to uint32, len uint32) {
 		m.writeDWordPhys(uint64(to+i), m.readDwordPhys(uint64(from+i)))
 	}
 
-	m.cpu.raiseInterrupt(peripherals.PI_MASK)
+	m.cpu.raiseInterrupt(PI_MASK)
 }
