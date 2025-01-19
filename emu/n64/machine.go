@@ -93,6 +93,7 @@ func (m *Machine) InitPeripherals() {
 		{Start: 0x04300000, End: 0x043FFFFF, Name: "MIPS Interface", P: &m.cpu.Mi},
 		{Start: 0x04600000, End: 0x046FFFFF, Name: "Peripheral Interface", P: CreatePi(m)},
 		{Start: 0x04700000, End: 0x047FFFFF, Name: "RDRAM settings", P: &Unused{}},
+		{Start: 0x04800000, End: 0x048FFFFF, Name: "Serial Interface", P: CreateSi(m)},
 	}
 }
 
