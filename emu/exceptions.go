@@ -1,5 +1,7 @@
 package emu
 
+import "go64/emu/util"
+
 const COP0_STATUS = 12
 const COP0_CAUSE = 13
 const COP0_EPC = 14
@@ -9,6 +11,7 @@ const EXCEPTION_TLB_MISS_LOAD = 2
 const EXCEPTION_TLB_MISS_STORE = 3
 const EXCEPTION_COP_UNUSABLE = 11
 
+const STATUS_IE = 0
 const STATUS_EXL = 1
 const STATUS_ERL = 2
 const STATUS_UX = 5
@@ -32,6 +35,11 @@ func (cpu *Cpu) raiseException(code int) {
 }
 
 func (cpu *Cpu) handleException() {
+	if cpu.exceptionCode == EXCEPTION_INTERRUPT &&
+		(cpu.cop0[COP0_STATUS]&uint64(util.Mask(STATUS_IE)) == 0) {
+		// interrupts disabled
+		return
+	}
 	// cpu.cop0[/* Cause */] = 0
 	oldEXL := cpu.cop0[COP0_STATUS] & STATUS_EXL
 
