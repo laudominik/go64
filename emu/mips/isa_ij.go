@@ -1,4 +1,4 @@
-package emu
+package mips
 
 import "go64/emu/util"
 
@@ -101,117 +101,117 @@ var ISA_IJ_TYPE = map[uint32]int{
 	0b101111: INSTR_TYPE_I,
 }
 
-func i_bne(m *Machine, instr Instruction) {
-	if m.cpu.r[instr.rs] == m.cpu.r[instr.rt] {
+func i_bne(cpu *Cpu, instr Instruction) {
+	if cpu.r[instr.rs] == cpu.r[instr.rt] {
 		return
 	}
-	m.cpu.planJump(m.cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
+	cpu.planJump(cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
 }
 
-func i_beq(m *Machine, instr Instruction) {
-	if m.cpu.r[instr.rs] != m.cpu.r[instr.rt] {
+func i_beq(cpu *Cpu, instr Instruction) {
+	if cpu.r[instr.rs] != cpu.r[instr.rt] {
 		return
 	}
-	m.cpu.planJump(m.cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
+	cpu.planJump(cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
 }
 
-func i_addi(m *Machine, instr Instruction) {
-	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] + util.Sext64(uint64(instr.imm), 16)
+func i_addi(cpu *Cpu, instr Instruction) {
+	cpu.r[instr.rt] = cpu.r[instr.rs] + util.Sext64(uint64(instr.imm), 16)
 }
 
-func i_andi(m *Machine, instr Instruction) {
-	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] & uint64(instr.imm)
+func i_andi(cpu *Cpu, instr Instruction) {
+	cpu.r[instr.rt] = cpu.r[instr.rs] & uint64(instr.imm)
 }
 
-func i_lw(m *Machine, instr Instruction) {
+func i_lw(cpu *Cpu, instr Instruction) {
 	se := util.Sext64(uint64(instr.imm), 16)
-	addr := m.cpu.r[instr.rs] + se
-	v := m.readDWord(addr)
-	if m.cpu.exception { // exception when reading
+	addr := cpu.r[instr.rs] + se
+	v := cpu.AddressSpace.Read(addr)
+	if cpu.Exception { // exception when reading
 		return
 	}
-	m.cpu.r[instr.rt] = uint64(v)
+	cpu.r[instr.rt] = uint64(v)
 }
 
-func i_sw(m *Machine, instr Instruction) {
-	v := m.cpu.r[instr.rt]
-	addr := m.cpu.r[instr.rs] + util.Sext64(uint64(instr.imm), 16)
-	m.writeDWord(addr, uint32(v))
+func i_sw(cpu *Cpu, instr Instruction) {
+	v := cpu.r[instr.rt]
+	addr := cpu.r[instr.rs] + util.Sext64(uint64(instr.imm), 16)
+	cpu.AddressSpace.Write(addr, uint32(v))
 	// exception when writing can happen so this instruction won't have any effect
 }
 
-func i_lwr(m *Machine, instr Instruction) {
-	addr := m.cpu.r[instr.rs] + uint64(util.Sext32(instr.imm, 16))
+func i_lwr(cpu *Cpu, instr Instruction) {
+	addr := cpu.r[instr.rs] + uint64(util.Sext32(instr.imm, 16))
 
 	offset := addr % 4 // byte number in word
 	aligned := addr - (addr % 4)
 
-	val := m.readDWord(aligned)
-	if m.cpu.exception { // exception when reading
+	val := cpu.AddressSpace.Read(aligned)
+	if cpu.Exception { // exception when reading
 		return
 	}
 
 	shift := offset * 8
 	mask := (1 << (32 - shift)) - 1
 	extracted := (val & uint32(mask)) << shift
-	m.cpu.r[instr.rt] = (m.cpu.r[instr.rt] & ^uint64(mask<<shift)) | uint64(extracted)
+	cpu.r[instr.rt] = (cpu.r[instr.rt] & ^uint64(mask<<shift)) | uint64(extracted)
 }
 
-func i_lui(m *Machine, instr Instruction) {
-	m.cpu.r[instr.rt] = uint64(instr.imm << 16)
+func i_lui(cpu *Cpu, instr Instruction) {
+	cpu.r[instr.rt] = uint64(instr.imm << 16)
 }
 
-func i_addiu(m *Machine, instr Instruction) {
+func i_addiu(cpu *Cpu, instr Instruction) {
 	/*
 		ADDIU performs the same arithmetic operation but, does not trap on overflow
 		should maybe consider that... but let's keep it simple for now
 	*/
-	i_addi(m, instr)
+	i_addi(cpu, instr)
 }
 
-func i_ori(m *Machine, instr Instruction) {
-	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] | uint64(instr.imm)
+func i_ori(cpu *Cpu, instr Instruction) {
+	cpu.r[instr.rt] = cpu.r[instr.rs] | uint64(instr.imm)
 }
 
-func j_jal(m *Machine, instr Instruction) {
-	m.cpu.r[31] = m.cpu.pc
-	m.cpu.planJump((m.cpu.pc & 0xFFFFFFFFF0000000) + uint64(instr.tgt<<2))
+func j_jal(cpu *Cpu, instr Instruction) {
+	cpu.r[31] = cpu.pc
+	cpu.planJump((cpu.pc & 0xFFFFFFFFF0000000) + uint64(instr.tgt<<2))
 }
 
-func i_slti(m *Machine, instr Instruction) {
-	if int64(m.cpu.r[instr.rs]) < int64(instr.imm) {
-		m.cpu.r[instr.rt] = 1
+func i_slti(cpu *Cpu, instr Instruction) {
+	if int64(cpu.r[instr.rs]) < int64(instr.imm) {
+		cpu.r[instr.rt] = 1
 		return
 	}
-	m.cpu.r[instr.rt] = 0
+	cpu.r[instr.rt] = 0
 }
 
-func i_beql(m *Machine, instr Instruction) {
+func i_beql(cpu *Cpu, instr Instruction) {
 	/* 	how does it differ from beq?
 	I suppose it is used in branch predictor
 	so from emulation POV no difference */
-	if m.cpu.r[instr.rs] != m.cpu.r[instr.rt] {
+	if cpu.r[instr.rs] != cpu.r[instr.rt] {
 		return
 	}
-	m.cpu.planJump(m.cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
+	cpu.planJump(cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
 }
 
-func i_xori(m *Machine, instr Instruction) {
-	m.cpu.r[instr.rt] = m.cpu.r[instr.rs] ^ uint64(instr.imm)
+func i_xori(cpu *Cpu, instr Instruction) {
+	cpu.r[instr.rt] = cpu.r[instr.rs] ^ uint64(instr.imm)
 }
 
-func i_bnel(m *Machine, instr Instruction) {
-	i_bne(m, instr)
+func i_bnel(cpu *Cpu, instr Instruction) {
+	i_bne(cpu, instr)
 }
 
-func i_blezl(m *Machine, instr Instruction) {
-	if int64(m.cpu.r[instr.rs]) > 0 {
+func i_blezl(cpu *Cpu, instr Instruction) {
+	if int64(cpu.r[instr.rs]) > 0 {
 		return
 	}
-	m.cpu.planJump(m.cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
+	cpu.planJump(cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
 }
 
-func i_cache(m *Machine, instr Instruction) {
+func i_cache(cpu *Cpu, instr Instruction) {
 	/* Not needed
 	not 100% sure so sth to keep in mind */
 }

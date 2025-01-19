@@ -1,4 +1,4 @@
-package emu
+package mips
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ type Instruction struct {
 	tgt uint32
 }
 
-type InstructionCallback func(m *Machine, instr Instruction)
+type InstructionCallback func(cpu *Cpu, instr Instruction)
 
 const INSTR_TYPE_R = 0b000000
 const INSTR_TYPE_I = -1
@@ -91,6 +91,6 @@ func decode(instrb uint32) Instruction {
 	return instr
 }
 
-func stub(m *Machine, instr Instruction) {
+func stub(m *Cpu, instr Instruction) {
 	panic(fmt.Sprintf("Calling a stub %s", instr.mnemonic))
 }

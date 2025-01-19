@@ -1,4 +1,4 @@
-package emu
+package mips
 
 import (
 	"fmt"

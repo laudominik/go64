@@ -1,4 +1,4 @@
-package emu
+package mips
 
 import "go64/emu/util"
 
@@ -10,9 +10,9 @@ var ISA_REGIMM_MNEMONIC = map[uint32]string{
 	0b000000: "BLTZ",
 }
 
-func regimm_bltz(m *Machine, instr Instruction) {
-	if int64(m.cpu.r[instr.rs]) >= 0 {
+func regimm_bltz(cpu *Cpu, instr Instruction) {
+	if int64(cpu.r[instr.rs]) >= 0 {
 		return
 	}
-	m.cpu.pc += uint64(util.Sext32(instr.imm, 16)) * 4
+	cpu.pc += uint64(util.Sext32(instr.imm, 16)) * 4
 }

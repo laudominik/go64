@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"go64/config"
-	"go64/emu"
+	"go64/emu/n64"
 	"os"
 )
 
 func main() {
-	var machine emu.Machine
+	var machine n64.Machine
 	machine.InitPeripherals()
 
 	config.ParseConfig()

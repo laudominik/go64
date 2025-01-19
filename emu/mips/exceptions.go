@@ -1,4 +1,4 @@
-package emu
+package mips
 
 import "go64/emu/util"
 
@@ -19,18 +19,18 @@ const STATUS_SX = 6
 const STATUS_KX = 7
 const STATUS_BEV = 22
 
-func (cpu *Cpu) raiseInterrupt(mask uint32) {
-	if cpu.mi.InterruptMask&mask != 0 {
+func (cpu *Cpu) RaiseInterrupt(mask uint32) {
+	if cpu.Mi.InterruptMask&mask != 0 {
 		return
 	}
 
-	cpu.exception = true
+	cpu.Exception = true
 	cpu.exceptionCode = EXCEPTION_INTERRUPT
-	cpu.mi.Interrupt = mask
+	cpu.Mi.Interrupt = mask
 }
 
 func (cpu *Cpu) raiseException(code int) {
-	cpu.exception = true
+	cpu.Exception = true
 	cpu.exceptionCode = code
 }
 

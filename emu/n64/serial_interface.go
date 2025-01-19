@@ -1,4 +1,4 @@
-package emu
+package n64
 
 import "fmt"
 

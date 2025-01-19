@@ -1,4 +1,4 @@
-package emu
+package mips
 
 import "fmt"
 
@@ -8,16 +8,16 @@ type Rsp struct {
 }
 
 type SpRegs struct {
-	m        *Machine
+	rsp      *Rsp
 	memAddr  uint32
 	dramAddr uint32
 	status   uint32
 }
 
-func CreateSpRegs(m *Machine) *SpRegs {
-	var regs SpRegs
-	regs.m = m
-	return &regs
+func CreateSpRegs(rsp *Rsp) *SpRegs {
+	var sp SpRegs
+	sp.rsp = rsp
+	return &sp
 }
 
 func (sr *SpRegs) Read(reg uint64) uint32 {
@@ -33,8 +33,7 @@ func (sr *SpRegs) Read(reg uint64) uint32 {
 }
 
 func (sr *SpRegs) Write(reg uint64, value uint32) {
-	m := sr.m
-	rsp := m.rsp
+	rsp := sr.rsp
 	switch reg {
 	case 0x0: /* SP Mem address */
 		sr.memAddr = value
@@ -45,7 +44,7 @@ func (sr *SpRegs) Write(reg uint64, value uint32) {
 	case 0x1C: /* Semaphore */
 		rsp.semHeld = false
 	case 0x40000: /* PC */
-		m.rsp.pc = value >> 2
+		sr.rsp.pc = value >> 2
 	default:
 		panic(fmt.Sprintf("Writing to unimplemented SP register 0x%x", reg))
 	}

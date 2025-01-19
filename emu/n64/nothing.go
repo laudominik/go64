@@ -1,4 +1,4 @@
-package emu
+package n64
 
 type Unused []byte
 
