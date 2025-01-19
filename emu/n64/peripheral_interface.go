@@ -53,7 +53,8 @@ func (pi *Pi) Write(reg uint64, value uint32) {
 
 		pi.len = len
 		pi.doDmaTransfer(cartAddr, dramAddr, len)
-
+	case 0x10:
+		pi.m.cpu.LowerInterrupt(mips.PI_MASK)
 	default:
 		panic(fmt.Sprintf("Writing to unimplemented PI register 0x%x", reg))
 	}
