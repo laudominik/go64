@@ -3,7 +3,8 @@ package emu
 import "fmt"
 
 type Rsp struct {
-	pc uint32
+	pc      uint32
+	semHeld bool
 }
 
 type SpRegs struct {
@@ -33,6 +34,7 @@ func (sr *SpRegs) Read(reg uint64) uint32 {
 
 func (sr *SpRegs) Write(reg uint64, value uint32) {
 	m := sr.m
+	rsp := m.rsp
 	switch reg {
 	case 0x0: /* SP Mem address */
 		sr.memAddr = value
@@ -40,6 +42,8 @@ func (sr *SpRegs) Write(reg uint64, value uint32) {
 		sr.dramAddr = value
 	case 0x10: /* Status */
 		sr.status = value
+	case 0x1C: /* Semaphore */
+		rsp.semHeld = false
 	case 0x40000: /* PC */
 		m.rsp.pc = value >> 2
 	default:
