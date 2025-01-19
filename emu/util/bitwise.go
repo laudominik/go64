@@ -21,6 +21,10 @@ func Bits(num, end, start uint32) uint32 {
 	return (num >> start) & mask
 }
 
+func Bit(num, no uint32) uint32 {
+	return Bits(num, no, no)
+}
+
 // if bit inputBit is set, return number with outputBit set to 1
 func SetBit(value uint32, inputBit uint32, outputBit uint32) uint32 {
 	if value&(1<<inputBit) != 0 {
