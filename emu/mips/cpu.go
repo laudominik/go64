@@ -38,7 +38,7 @@ func (cpu *Cpu) Reset() {
 	cpu.r[31] = 0xFFFFFFFFA4001550 // Return Address
 	cpu.r[2] = 0xFFFFFFFFF58B0FBF
 	cpu.r[20] = 0x0000000000000001
-	cpu.r[22] = 0x000000000000003F
+	cpu.r[22] = 0x91 // it should be checksum seed
 	cpu.cop0[1] = 0x0000001F
 	cpu.cop0[12] = 0x34000000
 	cpu.cop0[15] = 0x00000B00
@@ -67,6 +67,7 @@ func (cpu *Cpu) Tick() {
 	}
 
 	instrb := cpu.AddressSpace.Read(pc)
+	// fmt.Println(cpu.r[22])
 	if cpu.Exception {
 		// exception can happen during instruction fetch
 		cpu.handleException()
