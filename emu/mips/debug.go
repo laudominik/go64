@@ -52,3 +52,9 @@ func (instr Instruction) disassemble() string {
 	}
 	panic("Trying to disassemble invalid/undecoded function")
 }
+
+func (cpu *Cpu) dump_regs() {
+	for i, r := range cpu.r {
+		fmt.Println(fmt.Sprintf("%s = 0x%x", REG_ALT_NAME[i], r))
+	}
+}
