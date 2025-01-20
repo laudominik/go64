@@ -174,7 +174,7 @@ func i_ori(cpu *Cpu, instr Instruction) {
 }
 
 func j_jal(cpu *Cpu, instr Instruction) {
-	cpu.r[31] = cpu.pc
+	cpu.r[31] = cpu.pc + 4
 	cpu.planJump((cpu.pc & 0xFFFFFFFFF0000000) + uint64(instr.tgt<<2))
 }
 
