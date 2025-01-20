@@ -7,11 +7,11 @@ var REG_ALT_NAME = [32]string{
 	"at",
 	"v0",
 	"v1",
-	"a0",
+	"a0", //r4
 	"a1",
 	"a2",
 	"a3",
-	"t0",
+	"t0", //r8
 	"t1",
 	"t2",
 	"t3",
@@ -19,7 +19,7 @@ var REG_ALT_NAME = [32]string{
 	"t5",
 	"t6",
 	"t7",
-	"s0",
+	"s0", //r16
 	"s1",
 	"s2",
 	"s3",
