@@ -119,7 +119,7 @@ func r_slt(cpu *Cpu, instr Instruction) {
 }
 
 func r_sltu(cpu *Cpu, instr Instruction) {
-	if cpu.r[instr.rs] < cpu.r[instr.rt] {
+	if util.Reg32(cpu.r[instr.rs]) < util.Reg32(cpu.r[instr.rt]) {
 		cpu.r[instr.rd] = 1
 		return
 	}

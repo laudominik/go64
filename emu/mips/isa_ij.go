@@ -102,14 +102,14 @@ var ISA_IJ_TYPE = map[uint32]int{
 }
 
 func i_bne(cpu *Cpu, instr Instruction) {
-	if cpu.r[instr.rs] == cpu.r[instr.rt] {
+	if util.Reg32(cpu.r[instr.rs]) == util.Reg32(cpu.r[instr.rt]) {
 		return
 	}
 	cpu.planJump(cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
 }
 
 func i_beq(cpu *Cpu, instr Instruction) {
-	if cpu.r[instr.rs] != cpu.r[instr.rt] {
+	if util.Reg32(cpu.r[instr.rs]) != util.Reg32(cpu.r[instr.rt]) {
 		return
 	}
 	cpu.planJump(cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)
@@ -190,7 +190,7 @@ func i_beql(cpu *Cpu, instr Instruction) {
 	/* 	how does it differ from beq?
 	I suppose it is used in branch predictor
 	so from emulation POV no difference */
-	if cpu.r[instr.rs] != cpu.r[instr.rt] {
+	if util.Reg32(cpu.r[instr.rs]) != util.Reg32(cpu.r[instr.rt]) {
 		return
 	}
 	cpu.planJump(cpu.pc + uint64(util.Sext32(instr.imm, 16))*4)

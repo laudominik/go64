@@ -21,6 +21,10 @@ func Bits(num, end, start uint32) uint32 {
 	return (num >> start) & mask
 }
 
+func Reg32(num uint64) uint32 {
+	return uint32(num & 0xFFFFFFFF)
+}
+
 func Bit(num, no uint32) uint32 {
 	return Bits(num, no, no)
 }
