@@ -1,7 +1,7 @@
 package mips
 
 import (
-	"fmt"
+	"go64/emu/util"
 	b "math/bits"
 )
 
@@ -74,11 +74,6 @@ func r_sub(cpu *Cpu, instr Instruction) {
 }
 
 func r_xor(cpu *Cpu, instr Instruction) {
-	if instr.rd == 14 && instr.rt == 10 && instr.rs == 7 {
-		cpu.dump_regs()
-		// t2 (counter), a2 && t9 are wrong at the end!!
-		fmt.Println("checksum end")
-	}
 	cpu.r[instr.rd] = cpu.r[instr.rs] ^ cpu.r[instr.rt]
 }
 

@@ -1,7 +1,7 @@
 N64 emulator
 
 current goals:
-* emulate cic-nus 6105 boot code (nice disassembly source below) [checksum fails]
+* emulate cic-nus 6105 boot code (nice disassembly source below)
 * run tloz oot
 
 reference: 
