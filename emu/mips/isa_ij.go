@@ -7,7 +7,7 @@ var ISA_IJ_TABLE = map[uint32]InstructionCallback{
 	0b000011: j_jal,
 	0b000100: i_beq,
 	0b000101: i_bne,
-	0b000110: stub,
+	0b000110: i_blezl,
 	0b000111: stub,
 	0b001000: i_addi,
 	0b001001: i_addiu,

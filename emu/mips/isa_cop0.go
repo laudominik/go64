@@ -19,3 +19,7 @@ func cop0_g1_mtc0(cpu *Cpu, instr Instruction) {
 func cop0_g1_mfc0(cpu *Cpu, instr Instruction) {
 	cpu.r[instr.rt] = cpu.cop0[instr.rd+(instr.sa&0b111)]
 }
+
+func cop0_g1_mfhc0(cpu *Cpu, instr Instruction) {
+	cpu.r[instr.rt] = cpu.cop0[instr.rd+(instr.sa&0b111)] >> 32
+}
