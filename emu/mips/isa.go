@@ -33,6 +33,8 @@ const INSTR_TYPE_I = -1
 const INSTR_TYPE_J = -2
 const INSTR_TYPE_REGIMM = 0b000001
 const INSTR_TYPE_COP0 = 0b010000
+const INSTR_TYPE_COP1 = 0b010001
+const INSTR_TYPE_COP2 = 0b010010
 
 func decode(instrb uint32) Instruction {
 	instr := Instruction{
@@ -65,12 +67,14 @@ func decode(instrb uint32) Instruction {
 		callback, valid = ISA_REGIMM_TABLE[instr.rt]
 		mnemonic, validMnemonic = ISA_REGIMM_MNEMONIC[instr.rt]
 	case INSTR_TYPE_COP0:
-		if instr.rs&0b10000 == 0 {
-			callback, valid = ISA_COP0_G1_TABLE[instr.rs]
-			mnemonic, validMnemonic = ISA_COP0_G1_MNEMONIC[instr.rs]
-		} else {
-
-		}
+		callback, valid = ISA_COP0_G1_TABLE[instr.rs]
+		mnemonic, validMnemonic = ISA_COP0_G1_MNEMONIC[instr.rs]
+	case INSTR_TYPE_COP1:
+		callback, valid = ISA_COP1_TABLE[instr.rs]
+		mnemonic, validMnemonic = ISA_COP1_MNEMONIC[instr.rs]
+	case INSTR_TYPE_COP2:
+		callback, valid = ISA_COP2_TABLE[instr.rs]
+		mnemonic, validMnemonic = ISA_COP2_MNEMONIC[instr.rs]
 	default:
 		callback, valid = ISA_IJ_TABLE[instr.opcode]
 		mnemonic, validMnemonic = ISA_IJ_MNEMONIC[instr.opcode]
