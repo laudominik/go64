@@ -78,7 +78,11 @@ func decode(instrb uint32) Instruction {
 	}
 
 	if !valid || !validMnemonic || !validTy {
-		panic(fmt.Sprintf("Invalid instruction, Opcode: 0b%b Funct: 0b%b", instr.opcode, instr.funct))
+		panic(
+			fmt.Sprintf("Invalid instruction, Opcode: 0b%b Funct: 0b%b Rs: 0b%b",
+				instr.opcode,
+				instr.funct,
+				instr.rs))
 	}
 
 	instr.callback = callback

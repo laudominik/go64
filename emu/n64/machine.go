@@ -86,6 +86,7 @@ func (m *Machine) InitPeripherals() {
 	m.memoryMap = []util.MemoryRange{
 		{Start: 0x10000000, End: 0x1FBFFFFF, Name: "Cartridge ROM", P: &m.cartridgeRom},
 		{Start: 0x00000000, End: 0x003FFFFF, Name: "RDRAM", P: make(Memory, 0x400000)},
+		{Start: 0x00400000, End: 0x007FFFFF, Name: "RDRAM Expansion Pack", P: make(Memory, 0x400000)},
 		{Start: 0x03F00000, End: 0x03FFFFFF, Name: "RDRAM MMIO", P: &Unused{}},
 		{Start: 0x04000000, End: 0x04000FFF, Name: "RSP Data Memory", P: make(Memory, 0x1000)},
 		{Start: 0x04001000, End: 0x04001FFF, Name: "RSP Instruction Memory", P: make(Memory, 0x1000)},
