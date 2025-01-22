@@ -12,6 +12,8 @@ type Cpu struct {
 	hi            uint64
 	lo            uint64
 	cop0          Registers
+	cop1          Registers
+	cop2          Registers
 	tlb           [32][2]uint64
 	Exception     bool
 	exceptionCode int
